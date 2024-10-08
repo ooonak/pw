@@ -1,0 +1,47 @@
+Name:	dk.logos.wilma
+Umask:	0077
+State:	S (sleeping)
+Tgid:	822
+Ngid:	0
+Pid:	822
+PPid:	199
+TracerPid:	0
+Uid:	10031	10031	10031	10031
+Gid:	10031	10031	10031	10031
+FDSize:	256
+Groups:	1015 1028 2900 3003 50031 
+VmPeak:	  568140 kB
+VmSize:	  565316 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	  104284 kB
+VmRSS:	  100824 kB
+RssAnon:	   51060 kB
+RssFile:	   49700 kB
+RssShmem:	      64 kB
+VmData:	  395160 kB
+VmStk:	    3204 kB
+VmExe:	       8 kB
+VmLib:	   53792 kB
+VmPTE:	     190 kB
+VmPMD:	       0 kB
+VmSwap:	       0 kB
+Threads:	20
+SigQ:	0/7564
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000001204
+SigIgn:	0000000000001000
+SigCgt:	00000002000184f8
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	0000000000000000
+CapAmb:	0000000000000000
+NoNewPrivs:	1
+Seccomp:	0
+Speculation_Store_Bypass:	unknown
+Cpus_allowed:	1
+Cpus_allowed_list:	0
+voluntary_ctxt_switches:	296
+nonvoluntary_ctxt_switches:	3559

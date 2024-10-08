@@ -1,13 +1,35 @@
+use std::{fs::File, io::{self, BufRead, BufReader}, path::Path};
 
-/// Read first line from file
-pub fn read_line(path: &std::path::Path) -> Result<String, std::io::Error> {
-    let mut contents = std::fs::read_to_string(path)?;
-    
-    if contents.ends_with('\n') {
-        contents.pop();
+/// Read all lines from file into vector.
+pub fn read_lines(path: impl AsRef<Path>) -> io::Result<Vec<String>> {
+    let file = File::open(path)?;
+    let buf = BufReader::new(file);
+    return buf.lines()
+        .map(|l| l)
+        .collect()
+}
+
+/// Find first occurence of line in lines that begins with each element in elements.
+/// If elements is empty, all lines are returned.
+pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>) -> Vec<String> {
+    let mut info = vec![];
+
+    for line in &lines {
+        for element in & mut elements {
+            if element.1 == false && line.starts_with(element.0) {
+                element.1 = true;
+                info.push(line.trim().replace('\n', "").replace('\r', "").replace('\t', "").to_string());
+
+            }
+        }
+
+        if elements.is_empty()
+        {
+            info.push(line.trim().replace('\n', "").replace('\r', "").replace('\t', "").to_string());
+        }
     }
 
-    Ok(contents)
+    info
 }
 
 #[cfg(test)]
@@ -16,7 +38,35 @@ mod tests {
 
     #[test]
     fn read_line_ok() {
-        let boot_id = read_line(std::path::Path::new("/proc/sys/kernel/random/boot_id")).unwrap();
-        assert_eq!(boot_id.len(), 36);
+        let lines = read_lines(std::path::Path::new("/proc/sys/kernel/random/boot_id")).expect("Failed to file");
+        assert_eq!(lines.len(), 1); 
+        assert_eq!(lines[0].len(), 36);
+    }
+
+    #[test]
+    fn read_line_missing_file() {
+        let result = read_lines("/tmp/dontexists/boot_id").map_err(|e| e.kind());
+        let expected = Err(std::io::ErrorKind::NotFound);
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn parse_lines_no_lines() {
+
+    }
+
+    #[test]
+    fn parse_lines_one_line() {
+
+    }
+
+    #[test]
+    fn parse_lines_no_elements() {
+        
+    }
+
+    #[test]
+    fn parse_lines_multiple_elements() {
+        
     }
 }
