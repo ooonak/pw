@@ -77,7 +77,7 @@ mod tests {
         
         let info = parse_lines(lines, elements);
         assert_eq!(info.len(), 1);
-        assert_eq!(info[0], "model name: ARMv7 Processor rev 10 (v7l)");
+        assert_eq!(info[0], "model name : ARMv7 Processor rev 10 (v7l)");
     }
 
     #[test]

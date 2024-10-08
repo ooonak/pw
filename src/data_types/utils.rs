@@ -18,14 +18,16 @@ pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>) -> Vec<S
         for element in & mut elements {
             if element.1 == false && line.starts_with(element.0) {
                 element.1 = true;
-                info.push(line.trim().replace('\n', "").replace('\r', "").replace('\t', "").to_string());
+                let words: Vec<&str> = line.split_whitespace().collect(); 
+                info.push(words.join(" "));
 
             }
         }
 
         if elements.is_empty()
         {
-            info.push(line.trim().replace('\n', "").replace('\r', "").replace('\t', "").to_string());
+            let words: Vec<&str> = line.split_whitespace().collect(); 
+            info.push(words.join(" ")); 
         }
     }
 
