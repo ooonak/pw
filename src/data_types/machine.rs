@@ -2,10 +2,12 @@ use std::io;
 use serde::{Deserialize, Serialize};
 use rmp_serde::Serializer;
 use crate::data_types::{traits, utils};
-use super::utils::{read_lines, parse_lines};
+use super::utils::{find_default_dev, find_iface_info, parse_lines, read_lines};
 
 #[derive(Debug, Default, PartialEq, Deserialize, Serialize)]
 pub struct Machine {
+    pub mac: u64,
+    pub ipv4: u32,
     pub uptime: u32,
     pub boot_id: String,
     pub version: String,
@@ -19,11 +21,24 @@ impl Machine {
     }
 
     pub fn load(&mut self) {
+        (self.mac, self.ipv4) = Machine::parse_mac_and_ip();
         self.uptime = Machine::parse_uptime();
         self.boot_id = Machine::parse_boot_id();
         self.version = Machine::parse_version();
         self.cpuinfo = Machine::parse_cpuinfo();
         self.meminfo = Machine::parse_meminfo();
+    }
+
+    fn parse_mac_and_ip() -> (u64, u32) {
+        let dev = find_default_dev();
+        if dev.is_some() {
+            let info = find_iface_info(&dev.unwrap());
+            if info.is_some() {
+                return info.unwrap();
+            }
+        }
+        
+        (0,0)
     }
 
     fn parse_uptime() -> u32 {

@@ -34,9 +34,23 @@ pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>) -> Vec<S
     info
 }
 
+pub fn find_default_dev() -> Option<String> {
+    /// Simple manual approach instead of local-ip-address crate, sysfs and getifaddrs is not an option on Android.
+    
+    todo!()
+}
+
+pub fn find_iface_info(dev: &str) -> Option<(u64, u32)> {
+    /// Simple manual approach instead of local-ip-address crate, sysfs and getifaddrs is not an option on Android.
+    
+    todo!()
+}
+
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use serde::de::Expected;
+
+    use super::{find_default_dev, *};
 
     #[test]
     fn read_line_ok() {
@@ -54,21 +68,54 @@ mod tests {
 
     #[test]
     fn parse_lines_no_lines() {
-
+        todo!()
     }
 
     #[test]
     fn parse_lines_one_line() {
-
+        todo!()
     }
 
     #[test]
     fn parse_lines_no_elements() {
-        
+        todo!()
     }
 
     #[test]
     fn parse_lines_multiple_elements() {
-        
+        todo!()
     }
+
+    #[test]
+    fn find_default_dev_ok() {
+        let data = "default via 192.168.42.1 dev wlp3s0 proto dhcp src 192.168.42.114 metric 20 
+default via 192.168.42.1 dev wlp3s0 proto dhcp src 192.168.42.122 metric 600 
+172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown 
+192.168.42.0/24 dev wlp3s0 proto kernel scope link src 192.168.42.122 metric 600 
+192.168.42.1 dev wlp3s0 proto dhcp scope link src 192.168.42.114 metric 20";
+
+        let expected = "wlp3s0";
+        let result = find_default_dev();
+        assert!(result.is_some());
+        assert_eq!(expected, result.unwrap());
+    }
+
+    #[test]
+    fn find_iface_info_ok() {
+        let data = "3: wlp3s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether b4:6b:fc:ed:d5:78 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.42.122/24 brd 192.168.42.255 scope global dynamic noprefixroute wlp3s0
+       valid_lft 86389sec preferred_lft 86389sec
+    inet 192.168.42.114/24 metric 20 brd 192.168.42.255 scope global secondary dynamic wlp3s0
+       valid_lft 86399sec preferred_lft 86399sec
+    inet6 fe80::a16:8647:5dac:4ed6/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever";
+
+       /// We store MAC and IPv4 as their unsigned representation.
+       let expected: ( u64, u32 ) = ( 0xb46bfcedd578, 0xc0a82a7a );
+       let result = find_iface_info("wlp3s0");
+       assert!(result.is_some());
+       assert_eq!(expected, result.unwrap());
+    }
+
 }

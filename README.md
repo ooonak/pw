@@ -11,22 +11,7 @@ $ /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.2.95196
 $ echo 'export ANDROID_NDK_HOME="/opt/android-sdk/ndk/25.2.9519653"' >> ~/.bash_profile
 ```
 
-### Approach 1 (very easy, nice for libs)
-
-Install cargo extension for building Rust code for Android and the specific toolchain(s) you need.
-
-```
-$ cargo install cargo-ndk
-$ rustup target add armv7-linux-androideabi
-```
-
-Build the project.
-
-```
-$ cargo ndk -vv -t armeabi-v7a -o ./jniLibs -p 19 build --release
-```
-
-### Approach 2 (binaries, out of the box)
+### Approach 1 (binaries, out of the box)
 
 Install target and add information needed to cross-compile.
 
@@ -46,4 +31,19 @@ $ cargo build --target armv7-linux-androideabi --release
 
 $ file target/armv7-linux-androideabi/release/pw
 target/armv7-linux-androideabi/release/pw: ELF 32-bit LSB pie executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /system/bin/linker, not stripped
+```
+
+### Approach 2 (very easy, nice for libs)
+
+Install cargo extension for building Rust code for Android and the specific toolchain(s) you need.
+
+```
+$ cargo install cargo-ndk
+$ rustup target add armv7-linux-androideabi
+```
+
+Build the project.
+
+```
+$ cargo ndk -vv -t armeabi-v7a -o ./jniLibs -p 19 build --release
 ```
