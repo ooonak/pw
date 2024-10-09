@@ -6,6 +6,7 @@ use super::utils::{read_lines, parse_lines};
 
 #[derive(Debug, Default, PartialEq, Deserialize, Serialize)]
 pub struct Machine {
+    pub uptime: u32,
     pub boot_id: String,
     pub version: String,
     pub cpuinfo: Vec<String>,
@@ -18,10 +19,24 @@ impl Machine {
     }
 
     pub fn load(&mut self) {
+        self.uptime = Machine::parse_uptime();
         self.boot_id = Machine::parse_boot_id();
         self.version = Machine::parse_version();
         self.cpuinfo = Machine::parse_cpuinfo();
         self.meminfo = Machine::parse_meminfo();
+    }
+
+    fn parse_uptime() -> u32 {
+        let lines = read_lines("/proc/uptime").expect("Could not read /proc/uptime");
+        if !lines.is_empty() {
+            /// /proc/uptime contains '2747.41 17969.77', where first number is seconds since boot.
+            let floats = lines[0].split(" ").filter_map(|s| s.parse::<f32>().ok()).collect::<Vec<_>>();
+            if !floats.is_empty() {
+                return floats[0] as u32;
+            }   
+        }
+        
+        0
     }
 
     fn parse_boot_id() -> String {
