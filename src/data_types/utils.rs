@@ -1,6 +1,6 @@
-use std::{fs::File, io::{self, BufRead, BufReader}, path::Path};
+use std::{fs::File, io::{self, BufRead, BufReader, Write}, path::Path, process::{Command, Output}};
 
-/// Read all lines from file into vector.
+// Read all lines from file into vector.
 pub fn read_lines(path: impl AsRef<Path>) -> io::Result<Vec<String>> {
     let file = File::open(path)?;
     let buf = BufReader::new(file);
@@ -9,8 +9,8 @@ pub fn read_lines(path: impl AsRef<Path>) -> io::Result<Vec<String>> {
         .collect()
 }
 
-/// Find first occurence of line in lines that begins with each element in elements.
-/// If elements is empty, all lines are returned.
+// Find first occurence of line in lines that begins with each element in elements.
+// If elements is empty, all lines are returned.
 pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>) -> Vec<String> {
     let mut info = vec![];
 
@@ -34,14 +34,25 @@ pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>) -> Vec<S
     info
 }
 
-pub fn find_default_dev() -> Option<String> {
-    /// Simple manual approach instead of local-ip-address crate, sysfs and getifaddrs is not an option on Android.
-    
-    todo!()
+pub fn find_default_dev() -> Option<String> {    
+    // Simple manual approach instead of local-ip-address crate, sysfs and getifaddrs is not an option on Android.
+    if let Ok(output) = Command::new("ip").arg("route").output() {
+        let stdout = String::from_utf8(output.stdout).unwrap();
+        for line in stdout.lines() {
+            if line.starts_with("default") {
+                let words: Vec<&str> = line.split_whitespace().collect();
+                if words.len() >= 4 {
+                    return Some(words[4].to_string());
+                }
+            }
+        }
+    }
+
+    None
 }
 
 pub fn find_iface_info(dev: &str) -> Option<(u64, u32)> {
-    /// Simple manual approach instead of local-ip-address crate, sysfs and getifaddrs is not an option on Android.
+    // Simple manual approach instead of local-ip-address crate, sysfs and getifaddrs is not an option on Android.
     
     todo!()
 }
@@ -111,7 +122,7 @@ default via 192.168.42.1 dev wlp3s0 proto dhcp src 192.168.42.122 metric 600
     inet6 fe80::a16:8647:5dac:4ed6/64 scope link noprefixroute 
        valid_lft forever preferred_lft forever";
 
-       /// We store MAC and IPv4 as their unsigned representation.
+       // We store MAC and IPv4 as their unsigned representation.
        let expected: ( u64, u32 ) = ( 0xb46bfcedd578, 0xc0a82a7a );
        let result = find_iface_info("wlp3s0");
        assert!(result.is_some());

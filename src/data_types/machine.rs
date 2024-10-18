@@ -44,7 +44,7 @@ impl Machine {
     fn parse_uptime() -> u32 {
         let lines = read_lines("/proc/uptime").expect("Could not read /proc/uptime");
         if !lines.is_empty() {
-            /// /proc/uptime contains '2747.41 17969.77', where first number is seconds since boot.
+            // /proc/uptime contains '2747.41 17969.77', where first number is seconds since boot.
             let floats = lines[0].split(" ").filter_map(|s| s.parse::<f32>().ok()).collect::<Vec<_>>();
             if !floats.is_empty() {
                 return floats[0] as u32;
