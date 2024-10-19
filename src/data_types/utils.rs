@@ -1,9 +1,9 @@
 use std::{
     fs::File,
-    io::{self, BufRead, BufReader, Write},
-    net::{IpAddr, Ipv4Addr},
+    io::{self, BufRead, BufReader},
+    net::Ipv4Addr,
     path::Path,
-    process::{Command, Output},
+    process::Command,
 };
 
 // Read all lines from file into vector.
