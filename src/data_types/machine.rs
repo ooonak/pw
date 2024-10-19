@@ -1,8 +1,5 @@
 use super::utils::{find_default_dev, find_iface_info, parse_lines, read_lines};
-use crate::data_types::{traits, utils};
-use rmp_serde::Serializer;
 use serde::{Deserialize, Serialize};
-use std::io;
 
 #[derive(Debug, Default, PartialEq, Deserialize, Serialize)]
 pub struct Machine {
