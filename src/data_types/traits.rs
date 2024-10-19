@@ -1,3 +1,1 @@
-pub trait Message {
-    
-}
+pub trait Message {}
