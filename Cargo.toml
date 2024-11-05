@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rmp-serde = "1.3.0"
-serde = { version = "1.0.210", features = ["derive"] }
-zenoh = "0.11.0"
+prost = "0.13.3"
+zenoh = "1.0.1"
+
+[build-dependencies]
+prost-build = "0.13.3"
