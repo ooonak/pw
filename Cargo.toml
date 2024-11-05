@@ -1,12 +1,4 @@
-[package]
-name = "pw"
-version = "0.1.0"
-edition = "2021"
+[workspace]
 
-[dependencies]
-prost = "0.13.3"
-tokio = "1.41.0"
-zenoh = "1.0.1"
-
-[build-dependencies]
-prost-build = "0.13.3"
+members = [ "common", "client", "common" ]
+resolver = "2"
