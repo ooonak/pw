@@ -1,9 +1,7 @@
-mod machine;
-//mod process;
-//mod thread;
-mod traits;
+pub mod machine;
+
 mod utils;
 
-pub use machine::Machine;
-//pub use process::Process;
-//pub use thread::Thread;
+pub mod pw   {
+    include!(concat!(env!("OUT_DIR"), "/pw.rs"));
+}
