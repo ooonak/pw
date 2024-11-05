@@ -19,13 +19,39 @@ async fn main() {
     zenoh::init_log_from_env_or("error");
 
     let config = zenoh::Config::default();
-    //config.connect.endpoints.set(["tcp/127.0.0.1:7447"].iter().map(|s|s.parse().unwrap()).collect());
     
     println!("Opening session...");
     let session = zenoh::open(config).await.unwrap();
 
     let machine = data_types::machine::load();
     send_machine_info(&session, &machine).await;
+
+    let key = format!("pw/command/{}", machine.mac);
+    println!("Declaring Subscriber on '{}'...", &key);
+
+    let subscriber = session.declare_subscriber(&key).await.unwrap();
+    
+    println!("Press CTRL-C to quit...");
+
+    while let Ok(sample) = subscriber.recv_async().await {
+        // Refer to z_bytes.rs to see how to deserialize different types of message
+        let payload = sample
+            .payload()
+            .try_to_string()
+            .unwrap_or_else(|e| e.to_string().into());
+
+        print!(
+            ">> [Subscriber] Received {} ('{}': '{}')",
+            sample.kind(),
+            sample.key_expr().as_str(),
+            payload
+        );
+        if let Some(att) = sample.attachment() {
+            let att = att.try_to_string().unwrap_or_else(|e| e.to_string().into());
+            print!(" ({})", att);
+        }
+        println!();
+    }
 
     //println!("Serialized, buffer contains: {:?}", buffer);
     /*
