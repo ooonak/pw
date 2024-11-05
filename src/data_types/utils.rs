@@ -112,8 +112,6 @@ pub fn find_iface_info(dev: &str) -> Option<(u64, u32)> {
 
 #[cfg(test)]
 mod tests {
-    use serde::de::Expected;
-
     use super::{find_default_dev, *};
 
     #[test]
@@ -129,26 +127,6 @@ mod tests {
         let result = read_lines("/tmp/dontexists/boot_id").map_err(|e| e.kind());
         let expected = Err(std::io::ErrorKind::NotFound);
         assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn parse_lines_no_lines() {
-        todo!()
-    }
-
-    #[test]
-    fn parse_lines_one_line() {
-        todo!()
-    }
-
-    #[test]
-    fn parse_lines_no_elements() {
-        todo!()
-    }
-
-    #[test]
-    fn parse_lines_multiple_elements() {
-        todo!()
     }
 
     #[test]
