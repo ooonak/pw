@@ -1,5 +1,7 @@
 # pw - Process watcher tool
 
+[![Cargo Build & Test](https://github.com/ooonak/pw/actions/workflows/ci.yml/badge.svg)](https://github.com/ooonak/pw/actions/workflows/ci.yml)
+
 ## Install Android dev env
 
 Get Android command-line tools (https://developer.android.com/studio#cmdline-tools).
