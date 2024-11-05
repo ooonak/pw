@@ -8,6 +8,10 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  setup:
+    name: Install Protoc
+    uses: arduino/setup-protoc@v3
+
   build_and_test:
     name: Rust project - latest
     runs-on: ubuntu-latest
