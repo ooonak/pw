@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 prost = "0.13.3"
+tokio = "1.41.0"
 zenoh = "1.0.1"
 
 [build-dependencies]
