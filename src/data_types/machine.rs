@@ -2,8 +2,8 @@ use super::{pw, utils::{find_default_dev, find_iface_info, parse_lines, read_lin
 
 use prost::Message;
 
-pub fn load() -> pw::Machine {
-    let mut machine = pw::Machine::default();
+pub fn load() -> pw::messages::Machine {
+    let mut machine = pw::messages::Machine::default();
     
     (machine.mac, machine.ipv4) = parse_mac_and_ip();
     machine.uptime = parse_uptime();
@@ -15,7 +15,7 @@ pub fn load() -> pw::Machine {
     machine
 }
 
-pub fn serialize_machine(machine: &pw::Machine) -> Vec<u8> {
+pub fn serialize_machine(machine: &pw::messages::Machine) -> Vec<u8> {
     let mut buf = Vec::new();
     buf.reserve(machine.encoded_len());
     // Unwrap is safe, we have reserved capacity in the vector.
@@ -23,8 +23,8 @@ pub fn serialize_machine(machine: &pw::Machine) -> Vec<u8> {
     buf
 }
 
-pub fn deserialize_machine(buf: &[u8]) -> Result<pw::Machine, prost::DecodeError> {
-    pw::Machine::decode(buf)
+pub fn deserialize_machine(buf: &[u8]) -> Result<pw::messages::Machine, prost::DecodeError> {
+    pw::messages::Machine::decode(buf)
 }
 
 fn parse_mac_and_ip() -> (u64, u32) {
