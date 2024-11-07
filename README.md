@@ -1,49 +1,9 @@
-# pw - Process watcher tool
+# Process Watcher tool
 
-## Install Android dev env
+[![Cargo Build & Test](https://github.com/ooonak/pw/actions/workflows/ci.yml/badge.svg)](https://github.com/ooonak/pw/actions/workflows/ci.yml)
 
-Get Android command-line tools (https://developer.android.com/studio#cmdline-tools).
+## Overview
 
-```
-$ yay -Sy android-sdk-cmdline-tools-latest android-sdk-platform-tools android-udev
-$ sudo chown -R $USER:$USER /opt/android-sdk
-$ /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.2.9519653"
-$ echo 'export ANDROID_NDK_HOME="/opt/android-sdk/ndk/25.2.9519653"' >> ~/.bash_profile
-```
+I created the "Process Watcher tool" or pw as a little project while teaching myself Rust.
 
-### Approach 1 (binaries, out of the box)
-
-Install target and add information needed to cross-compile.
-
-```
-$ rustup target add armv7-linux-androideabi
-
-$ more .cargo/config.toml
-[target.armv7-linux-androideabi]
-ar = "/opt/android-sdk/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
-linker = "/opt/android-sdk/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi19-clang"
-```
-
-Build the project.
-
-```
-$ cargo build --target armv7-linux-androideabi --release
-
-$ file target/armv7-linux-androideabi/release/pw
-target/armv7-linux-androideabi/release/pw: ELF 32-bit LSB pie executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /system/bin/linker, not stripped
-```
-
-### Approach 2 (very easy, nice for libs)
-
-Install cargo extension for building Rust code for Android and the specific toolchain(s) you need.
-
-```
-$ cargo install cargo-ndk
-$ rustup target add armv7-linux-androideabi
-```
-
-Build the project.
-
-```
-$ cargo ndk -vv -t armeabi-v7a -o ./jniLibs -p 19 build --release
-```
+The project consists of two binaries. A service (pw) running on a Linux target and a client (pwtui) that is running on your laptop. The pw service sends information about the machine and running processes. The pwtui client displayes this information. Like a distributed version of top.

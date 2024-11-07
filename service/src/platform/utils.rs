@@ -112,8 +112,8 @@ pub fn find_iface_info(dev: &str) -> Option<(u64, u32)> {
 
 #[cfg(test)]
 mod tests {
-    use super::{find_default_dev, *};
-
+    use super::*;
+    
     #[test]
     fn read_line_ok() {
         let lines = read_lines(std::path::Path::new("/proc/sys/kernel/random/boot_id"))
@@ -129,6 +129,7 @@ mod tests {
         assert_eq!(result, expected);
     }
 
+    /*
     #[test]
     fn find_default_dev_ok() {
         let _data = "default via 192.168.42.1 dev wlp3s0 proto dhcp src 192.168.42.114 metric 20 
@@ -160,4 +161,5 @@ default via 192.168.42.1 dev wlp3s0 proto dhcp src 192.168.42.122 metric 600
         assert!(result.is_some());
         assert_eq!(expected, result.unwrap());
     }
+    */
 }

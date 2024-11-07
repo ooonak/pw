@@ -1,12 +1,11 @@
-mod data_types;
-
-use data_types::pw;
-use zenoh::{bytes::ZBytes, key_expr::{self, KeyExpr}, Config};
+use common::{pw, MACHINE_KEY_EXPR};
+mod platform;
+use zenoh::bytes::ZBytes;
 
 async fn send_machine_info(session: &zenoh::Session, machine: &pw::messages::Machine) {
-    let payload = ZBytes::from(data_types::machine::serialize_machine(&machine));
+    let payload = ZBytes::from(common::serialize_machine(&machine));
 
-    let key = format!("pw/machine/{}", machine.mac);
+    let key = format!("{}/{}", MACHINE_KEY_EXPR, machine.mac);
 
     println!("Putting Data ('{key}': {} bytes)...", payload.len());
     
@@ -15,7 +14,6 @@ async fn send_machine_info(session: &zenoh::Session, machine: &pw::messages::Mac
 
 #[tokio::main]
 async fn main() {
-    // initiate logging
     zenoh::init_log_from_env_or("error");
 
     let config = zenoh::Config::default();
@@ -23,7 +21,10 @@ async fn main() {
     println!("Opening session...");
     let session = zenoh::open(config).await.unwrap();
 
-    let machine = data_types::machine::load();
+    // TODO(ctp): Register liveliness.
+
+    let machine = platform::machine::load();
+
     send_machine_info(&session, &machine).await;
 
     let key = format!("pw/command/{}", machine.mac);
@@ -52,10 +53,4 @@ async fn main() {
         }
         println!();
     }
-
-    //println!("Serialized, buffer contains: {:?}", buffer);
-    /*
-    let deserialized = data_types::machine::deserialize_machine(&buffer);
-    println!("Deserialized: {:?}", deserialized);
-    */
 }
