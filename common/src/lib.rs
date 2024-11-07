@@ -1,5 +1,7 @@
 use prost::Message;
 
+pub const MACHINE_KEY_EXPR: &'static str = "pw/machine";
+
 pub mod pw {
     pub mod messages {
         include!(concat!(env!("OUT_DIR"), "/pw.messages.rs"));
