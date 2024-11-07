@@ -10,7 +10,7 @@ use std::{
 pub fn read_lines(path: impl AsRef<Path>) -> io::Result<Vec<String>> {
     let file = File::open(path)?;
     let buf = BufReader::new(file);
-    return buf.lines().map(|l| l).collect();
+    buf.lines().collect()
 }
 
 // Find first occurence of line in lines that begins with each element in elements.
@@ -20,7 +20,7 @@ pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>) -> Vec<S
 
     for line in &lines {
         for element in &mut elements {
-            if element.1 == false && line.starts_with(element.0) {
+            if !element.1 && line.starts_with(element.0) {
                 element.1 = true;
                 let words: Vec<&str> = line.split_whitespace().collect();
                 info.push(words.join(" "));
@@ -56,10 +56,7 @@ pub fn find_default_dev() -> Option<String> {
 fn mac_from_string(mac_string: &str) -> u64 {
     let mac_string = mac_string.replace(":", "");
     let mac = u64::from_str_radix(&mac_string, 16);
-    match mac {
-        Ok(mac) => mac,
-        Err(_e) => 0,
-    }
+    mac.unwrap_or_default()
 }
 
 fn ip_from_string(ip_string: &str) -> u32 {

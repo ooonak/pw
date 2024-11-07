@@ -3,7 +3,7 @@ mod platform;
 use zenoh::bytes::ZBytes;
 
 async fn send_machine_info(session: &zenoh::Session, machine: &pw::messages::Machine) {
-    let payload = ZBytes::from(common::serialize_machine(&machine));
+    let payload = ZBytes::from(common::serialize_machine(machine));
 
     let key = format!("{}/{}", MACHINE_KEY_EXPR, machine.mac);
 
