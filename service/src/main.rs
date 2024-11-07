@@ -21,8 +21,6 @@ async fn main() {
     println!("Opening session...");
     let session = zenoh::open(config).await.unwrap();
 
-    // TODO: Register liveliness.
-
     let machine = platform::machine::load();
 
     send_machine_info(&session, &machine).await;
