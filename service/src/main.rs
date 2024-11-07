@@ -3,7 +3,7 @@ mod platform;
 use zenoh::bytes::ZBytes;
 
 async fn send_machine_info(session: &zenoh::Session, machine: &pw::messages::Machine) {
-    let payload = ZBytes::from(common::serialize_machine(&machine));
+    let payload = ZBytes::from(common::serialize_machine(machine));
 
     let key = format!("{}/{}", MACHINE_KEY_EXPR, machine.mac);
 
@@ -21,7 +21,7 @@ async fn main() {
     println!("Opening session...");
     let session = zenoh::open(config).await.unwrap();
 
-    // TODO(ctp): Register liveliness.
+    // TODO: Register liveliness.
 
     let machine = platform::machine::load();
 

@@ -1,6 +1,6 @@
 use prost::Message;
 
-pub const MACHINE_KEY_EXPR: &'static str = "pw/machine";
+pub const MACHINE_KEY_EXPR: &str = "pw/machine";
 
 pub mod pw {
     pub mod messages {

@@ -8,7 +8,7 @@ async fn main() {
     
     let session = zenoh::open(config).await.unwrap();
 
-    // TODO(ctp): Subscribe to liveliness.
+    // TODO: Subscribe to liveliness.
     
     let key = format!("{}/**", MACHINE_KEY_EXPR);
 
