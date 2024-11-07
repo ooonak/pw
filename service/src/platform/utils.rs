@@ -128,38 +128,4 @@ mod tests {
         let expected = Err(std::io::ErrorKind::NotFound);
         assert_eq!(result, expected);
     }
-
-    /*
-    #[test]
-    fn find_default_dev_ok() {
-        let _data = "default via 192.168.42.1 dev wlp3s0 proto dhcp src 192.168.42.114 metric 20 
-default via 192.168.42.1 dev wlp3s0 proto dhcp src 192.168.42.122 metric 600 
-172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown 
-192.168.42.0/24 dev wlp3s0 proto kernel scope link src 192.168.42.122 metric 600 
-192.168.42.1 dev wlp3s0 proto dhcp scope link src 192.168.42.114 metric 20";
-
-        let expected = "wlp3s0";
-        let result = find_default_dev();
-        assert!(result.is_some());
-        assert_eq!(expected, result.unwrap());
-    }
-
-    #[test]
-    fn find_iface_info_ok() {
-        let _data = "3: wlp3s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
-    link/ether b4:6b:fc:ed:d5:78 brd ff:ff:ff:ff:ff:ff
-    inet 192.168.42.122/24 brd 192.168.42.255 scope global dynamic noprefixroute wlp3s0
-       valid_lft 86389sec preferred_lft 86389sec
-    inet 192.168.42.114/24 metric 20 brd 192.168.42.255 scope global secondary dynamic wlp3s0
-       valid_lft 86399sec preferred_lft 86399sec
-    inet6 fe80::a16:8647:5dac:4ed6/64 scope link noprefixroute 
-       valid_lft forever preferred_lft forever";
-
-        // We store MAC and IPv4 as their unsigned representation.
-        let expected: (u64, u32) = (0xb46bfcedd578, 0xc0a82a7a);
-        let result = find_iface_info("wlp3s0");
-        assert!(result.is_some());
-        assert_eq!(expected, result.unwrap());
-    }
-    */
 }
