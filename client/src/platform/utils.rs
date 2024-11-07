@@ -112,8 +112,6 @@ pub fn find_iface_info(dev: &str) -> Option<(u64, u32)> {
 
 #[cfg(test)]
 mod tests {
-    use super::{find_default_dev, *};
-
     #[test]
     fn read_line_ok() {
         let lines = read_lines(std::path::Path::new("/proc/sys/kernel/random/boot_id"))
