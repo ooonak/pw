@@ -1,4 +1,4 @@
 [workspace]
 
-members = [ "common", "client", "common" ]
+members = [ "common", "client", "service" ]
 resolver = "2"
