@@ -7,9 +7,10 @@ message Machine {
     uint32 ipv4 = 2;
     uint32 uptime = 3;
     string bootid = 4;
-    string version = 5;
-    repeated string cpuinfo = 6;
-    repeated string meminfo = 7;
+    string hostname = 5;
+    string version = 6;
+    repeated string cpuinfo = 7;
+    repeated string meminfo = 8;
 }
 
 message Process {

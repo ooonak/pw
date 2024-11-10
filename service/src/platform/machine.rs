@@ -6,6 +6,7 @@ pub fn load() -> common::pw::messages::Machine {
     (machine.mac, machine.ipv4) = parse_mac_and_ip();
     machine.uptime = parse_uptime();
     machine.bootid = parse_boot_id();
+    machine.hostname = parse_hostname();
     machine.version = parse_version();
     machine.cpuinfo = parse_cpuinfo();
     machine.meminfo = parse_meminfo();
@@ -47,6 +48,12 @@ fn parse_boot_id() -> String {
     parse_lines(lines, vec![]).pop().unwrap_or("".to_string())
 }
 
+fn parse_hostname() -> String {
+    let lines = read_lines("/proc/sys/kernel/hostname")
+        .expect("Could not read /proc/sys/kernel/hostname");
+    parse_lines(lines, vec![]).pop().unwrap_or("".to_string())
+}
+
 fn parse_version() -> String {
     let lines = read_lines("/proc/version").expect("Could not read /proc/version");
     parse_lines(lines, vec![]).pop().unwrap_or("".to_string())
@@ -80,6 +87,18 @@ mod tests {
     use std::path::PathBuf;
 
     use super::*;
+
+    #[test]
+    fn hostname() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("resources/test/proc/sys/kernel/hostname");
+
+        let lines = read_lines(path).expect("Could not read");
+
+        let info = parse_lines(lines, vec![]);
+        assert_eq!(info.len(), 1);
+        assert_eq!(info[0], "some-name");
+    }
 
     #[test]
     fn version() {
