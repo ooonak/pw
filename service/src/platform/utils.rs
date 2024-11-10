@@ -3,7 +3,7 @@ use std::{
     io::{self, BufRead, BufReader},
     net::Ipv4Addr,
     path::Path,
-    process::Command,
+    process::Command, str::FromStr,
 };
 
 // Read all lines from file into vector.
@@ -15,25 +15,49 @@ pub fn read_lines(path: impl AsRef<Path>) -> io::Result<Vec<String>> {
 
 // Find first occurence of line in lines that begins with each element in elements.
 // If elements is empty, all lines are returned.
-pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>) -> Vec<String> {
+// If drop_key is true everything before and including first occurence of ": " will be dropped.
+pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>, drop_key: bool) -> Vec<String> {
     let mut info = vec![];
 
     for line in &lines {
         for element in &mut elements {
             if !element.1 && line.starts_with(element.0) {
                 element.1 = true;
-                let words: Vec<&str> = line.split_whitespace().collect();
-                info.push(words.join(" "));
+                parse_line(line, drop_key, &mut info);
             }
         }
 
         if elements.is_empty() {
-            let words: Vec<&str> = line.split_whitespace().collect();
-            info.push(words.join(" "));
+            parse_line(line, drop_key, &mut info);
         }
     }
 
     info
+}
+
+fn parse_line(line: &String, drop_key: bool, info: &mut Vec<String>) {
+    let words: Vec<&str> = line.split_whitespace().collect();
+    let mut line = words.join(" ");
+
+    if drop_key {
+        remove_key(&mut line);
+    }
+
+    info.push(line);
+}
+
+fn remove_key(line: &mut String) {
+    match line.split_once(": ") {
+        Some((_key, value)) => {
+            *line = value.to_owned();
+        }
+        None => {}
+    }
+}
+
+pub fn parse_number<T: FromStr>(input: &str) -> Result<T, <T as FromStr>::Err> {
+    let i = input.find(|c: char| !c.is_numeric()).unwrap_or_else(|| input.len());
+    input[..i].parse::<T>()
 }
 
 pub fn find_default_dev() -> Option<String> {
