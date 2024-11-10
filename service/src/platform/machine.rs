@@ -3,13 +3,33 @@ use super::utils::{find_default_dev, find_iface_info, parse_lines, parse_number,
 pub fn load() -> common::pw::messages::Machine {
     let mut machine = common::pw::messages::Machine::default();
     
-    (machine.mac, machine.ipv4) = parse_mac_and_ip();
-    machine.uptime = parse_uptime();
-    machine.bootid = parse_boot_id();
-    machine.hostname = parse_hostname();
-    machine.version = parse_version();
-    machine.cpuinfo = parse_cpuinfo();
-    machine.meminfo = parse_meminfo();
+    if let Some(value) = parse_mac_and_ip() {
+        (machine.mac, machine.ipv4) = value;
+    }
+
+    if let Some(value) = parse_uptime() {
+        machine.uptime = value;
+    }
+
+    if let Some(value) = parse_boot_id() {
+        machine.bootid = value;
+    }
+
+    if let Some(value) = parse_hostname() {
+        machine.hostname = value;
+    }
+
+    if let Some(value) = parse_version() {
+        machine.version = value;
+    }
+    
+    if let Some(value) = parse_cpuinfo() {
+        machine.cpuinfo = value;
+    }
+    
+    if let Some(value) = parse_meminfo() {
+        machine.meminfo = value;
+    }
     
     if let Some(value) = parse_mem_size() {
         machine.physical_mem_total_kb = value;
@@ -18,80 +38,93 @@ pub fn load() -> common::pw::messages::Machine {
     machine
 }
 
-fn parse_mac_and_ip() -> (u64, u32) {
-    let dev = find_default_dev();
-    if dev.is_some() {
-        let info = find_iface_info(&dev.unwrap());
-        if info.is_some() {
-            return info.unwrap();
+fn parse_mac_and_ip() -> Option<(u64, u32)> {
+    if let Some(dev) = find_default_dev() {
+        return find_iface_info(&dev);
+    }
+
+    None
+}
+
+fn parse_uptime() -> Option<u32> {
+    if let Some(lines) = read_lines("/proc/uptime").ok() {
+        if !lines.is_empty() {
+            // /proc/uptime contains '2747.41 17969.77', where first number is seconds since boot.
+            let floats = lines[0]
+                .split(" ")
+                .filter_map(|s| s.parse::<f32>().ok())
+                .collect::<Vec<_>>();
+            if !floats.is_empty() {
+                return Some(floats[0] as u32);
+            }
         }
     }
 
-    (0, 0)
+    None
 }
 
-fn parse_uptime() -> u32 {
-    let lines = read_lines("/proc/uptime").expect("Could not read /proc/uptime");
-    if !lines.is_empty() {
-        // /proc/uptime contains '2747.41 17969.77', where first number is seconds since boot.
-        let floats = lines[0]
-            .split(" ")
-            .filter_map(|s| s.parse::<f32>().ok())
-            .collect::<Vec<_>>();
-        if !floats.is_empty() {
-            return floats[0] as u32;
-        }
+fn parse_boot_id() -> Option<String> {
+    if let Some(lines) = read_lines("/proc/sys/kernel/random/boot_id").ok() {
+        return parse_lines(lines, vec![], true).pop();
     }
 
-    0
+    None
 }
 
-fn parse_boot_id() -> String {
-    let lines = read_lines("/proc/sys/kernel/random/boot_id")
-        .expect("Could not read /proc/sys/kernel/random/boot_id");
-    parse_lines(lines, vec![], true).pop().unwrap_or("".to_string())
+fn parse_hostname() -> Option<String> {
+    if let Some(lines) = read_lines("/proc/sys/kernel/hostname").ok() {
+        return parse_lines(lines, vec![], true).pop();
+    }
+    
+    None
 }
 
-fn parse_hostname() -> String {
-    let lines = read_lines("/proc/sys/kernel/hostname")
-        .expect("Could not read /proc/sys/kernel/hostname");
-    parse_lines(lines, vec![], true).pop().unwrap_or("".to_string())
+fn parse_version() -> Option<String> {
+    if let Some(lines) = read_lines("/proc/version").ok() {
+        return parse_lines(lines, vec![], true).pop();
+    }
+    
+    None
 }
 
-fn parse_version() -> String {
-    let lines = read_lines("/proc/version").expect("Could not read /proc/version");
-    parse_lines(lines, vec![], true).pop().unwrap_or("".to_string())
+fn parse_cpuinfo() -> Option<Vec<String>> {
+    if let Some(lines) = read_lines("/proc/cpuinfo").ok() {
+        let elements = vec![
+            ("vendor_id", false),
+            ("model name", false),
+            ("cpu cores", false),
+            ("cpu MHz", false),
+        ];
+    
+        return Some(parse_lines(lines, elements, false));
+    }
+    
+    None
 }
 
-fn parse_cpuinfo() -> Vec<String> {
-    let lines = read_lines("/proc/cpuinfo").expect("Could not read /proc/cpuinfo");
-    let elements = vec![
-        ("vendor_id", false),
-        ("model name", false),
-        ("cpu cores", false),
-        ("cpu MHz", false),
-    ];
+fn parse_meminfo() -> Option<Vec<String>> {
+    if let Some(lines) = read_lines("/proc/meminfo").ok() {
+        let elements = vec![
+            ("MemTotal:", false),
+            ("MemFree:", false),
+            ("MemAvailable:", false),
+        ];
 
-    parse_lines(lines, elements, false)
-}
+        return Some(parse_lines(lines, elements, false));
+    }
 
-fn parse_meminfo() -> Vec<String> {
-    let lines = read_lines("/proc/meminfo").expect("Could not read /proc/meminfo");
-    let elements = vec![
-        ("MemTotal:", false),
-        ("MemFree:", false),
-        ("MemAvailable:", false),
-    ];
-
-    parse_lines(lines, elements, false)
+    None
 }
 
 fn parse_mem_size() -> Option<u32> {
-    let all_lines = read_lines("/proc/meminfo").expect("Could not read /proc/meminfo");
-    let elements = vec![ ("MemTotal:", false) ];
-    let lines = parse_lines(all_lines, elements, true);
+    if let Some(all_lines) = read_lines("/proc/meminfo").ok() {
+        let elements = vec![ ("MemTotal:", false) ];
+        let lines = parse_lines(all_lines, elements, true);
 
-    parse_number(&lines[0]).ok()
+        return parse_number(&lines[0]).ok()
+    }
+
+    None
 }
 
 #[cfg(test)]
