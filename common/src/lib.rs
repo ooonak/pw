@@ -28,7 +28,7 @@ mod tests {
     fn serialize_machine() {
         let mut machine = pw::messages::Machine::default();
         machine.mac = 12345678;
-        
+
         let buffer = super::serialize_machine(&machine);
 
         let expected: Vec<u8> = vec![8, 206, 194, 241, 5];
@@ -41,7 +41,7 @@ mod tests {
         let buffer: Vec<u8> = vec![8, 206, 194, 241, 5];
 
         let machine = super::deserialize_machine(&buffer);
-        
+
         let mut expected = pw::messages::Machine::default();
         expected.mac = 12345678;
 

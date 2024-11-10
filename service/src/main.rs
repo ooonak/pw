@@ -8,7 +8,7 @@ async fn send_machine_info(session: &zenoh::Session, machine: &pw::messages::Mac
     let key = format!("{}/{}", MACHINE_KEY_EXPR, machine.mac);
 
     println!("Putting Data ('{key}': {} bytes)...", payload.len());
-    
+
     session.put(&key, payload).await.unwrap();
 }
 
@@ -17,7 +17,7 @@ async fn main() {
     zenoh::init_log_from_env_or("error");
 
     let config = zenoh::Config::default();
-    
+
     println!("Opening session...");
     let session = zenoh::open(config).await.unwrap();
 
@@ -29,7 +29,7 @@ async fn main() {
     println!("Declaring Subscriber on '{}'...", &key);
 
     let subscriber = session.declare_subscriber(&key).await.unwrap();
-    
+
     println!("Press CTRL-C to quit...");
 
     while let Ok(sample) = subscriber.recv_async().await {

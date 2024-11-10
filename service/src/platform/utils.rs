@@ -3,7 +3,8 @@ use std::{
     io::{self, BufRead, BufReader},
     net::Ipv4Addr,
     path::Path,
-    process::Command, str::FromStr,
+    process::Command,
+    str::FromStr,
 };
 
 // Read all lines from file into vector.
@@ -16,7 +17,11 @@ pub fn read_lines(path: impl AsRef<Path>) -> io::Result<Vec<String>> {
 // Find first occurence of line in lines that begins with each element in elements.
 // If elements is empty, all lines are returned.
 // If drop_key is true everything before and including first occurence of ": " will be dropped.
-pub fn parse_lines(lines: Vec<String>, mut elements: Vec<(&str, bool)>, drop_key: bool) -> Vec<String> {
+pub fn parse_lines(
+    lines: Vec<String>,
+    mut elements: Vec<(&str, bool)>,
+    drop_key: bool,
+) -> Vec<String> {
     let mut info = vec![];
 
     for line in &lines {
@@ -47,16 +52,13 @@ fn parse_line(line: &String, drop_key: bool, info: &mut Vec<String>) {
 }
 
 fn remove_key(line: &mut String) {
-    match line.split_once(": ") {
-        Some((_key, value)) => {
-            *line = value.to_owned();
-        }
-        None => {}
+    if let Some((_key, value)) = line.split_once(": ") {
+        *line = value.to_owned();
     }
 }
 
 pub fn parse_number<T: FromStr>(input: &str) -> Result<T, <T as FromStr>::Err> {
-    let i = input.find(|c: char| !c.is_numeric()).unwrap_or_else(|| input.len());
+    let i = input.find(|c: char| !c.is_numeric()).unwrap_or(input.len());
     input[..i].parse::<T>()
 }
 
@@ -134,7 +136,7 @@ pub fn find_iface_info(dev: &str) -> Option<(u64, u32)> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn read_line_ok() {
         let lines = read_lines(std::path::Path::new("/proc/sys/kernel/random/boot_id"))
