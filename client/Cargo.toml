@@ -7,4 +7,5 @@ edition = "2021"
 common = { path = "../common" }
 ratatui = "0.29.0"
 tokio = "1.41.0"
-zenoh = "1.0.1"
+zenoh = "1.0.2"
+

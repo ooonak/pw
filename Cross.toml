@@ -1,0 +1,9 @@
+# Please refer to:
+# https://github.com/cross-rs/cross/blob/main/docs/config_file.md
+# https://github.com/cross-rs/wiki_assets/blob/main/Configuration/Cross.toml
+
+[build]
+# additional commands to run prior to building the package
+pre-build = [
+    "apt-get update && apt-get --assume-yes install protobuf-compiler"
+]

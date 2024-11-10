@@ -40,7 +40,7 @@ message Message {
     // We use the machine mac address as identifier, this makes mapping of information to a specific machine easy.
     uint64 mac = 2;
 
-    optional Machine machine = 3;
-    optional Process process = 4;
+    Machine machine = 3;
+    Process process = 4;
     repeated Thread threads = 5;
 }

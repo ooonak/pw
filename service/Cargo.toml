@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 tokio = "1.41.0"
-zenoh = "1.0.1"
+zenoh = "1.0.2"
