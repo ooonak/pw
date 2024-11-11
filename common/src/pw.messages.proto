@@ -5,12 +5,11 @@ package pw.messages;
 message Machine {
     uint64 mac = 1;
     uint32 ipv4 = 2;
-    uint32 uptime = 3;
+    uint64 boottime = 3;
     string bootid = 4;
     string hostname = 5;
     string version = 6;
-    repeated string cpuinfo = 7;
-    repeated string meminfo = 8;
+    string cpu_model_name = 7;
     uint32 physical_mem_total_kb = 9;
 }
 

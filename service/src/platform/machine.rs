@@ -1,4 +1,4 @@
-use super::utils::{find_default_dev, find_iface_info, parse_lines, parse_number, read_lines};
+use super::utils::{find_default_dev, find_iface_info, parse_lines, parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines};
 
 pub fn load() -> common::pw::messages::Machine {
     let mut machine = common::pw::messages::Machine::default();
@@ -7,8 +7,8 @@ pub fn load() -> common::pw::messages::Machine {
         (machine.mac, machine.ipv4) = value;
     }
 
-    if let Some(value) = parse_uptime() {
-        machine.uptime = value;
+    if let Some(value) = parse_boottime() {
+        machine.boottime = value;
     }
 
     if let Some(value) = parse_boot_id() {
@@ -24,11 +24,7 @@ pub fn load() -> common::pw::messages::Machine {
     }
 
     if let Some(value) = parse_cpuinfo() {
-        machine.cpuinfo = value;
-    }
-
-    if let Some(value) = parse_meminfo() {
-        machine.meminfo = value;
+        machine.cpu_model_name = value;
     }
 
     if let Some(value) = parse_mem_size() {
@@ -46,18 +42,12 @@ fn parse_mac_and_ip() -> Option<(u64, u32)> {
     None
 }
 
-fn parse_uptime() -> Option<u32> {
-    if let Ok(lines) = read_lines("/proc/uptime") {
-        if !lines.is_empty() {
-            // /proc/uptime contains '2747.41 17969.77', where first number is seconds since boot.
-            let floats = lines[0]
-                .split(" ")
-                .filter_map(|s| s.parse::<f32>().ok())
-                .collect::<Vec<_>>();
-            if !floats.is_empty() {
-                return Some(floats[0] as u32);
-            }
-        }
+fn parse_boottime() -> Option<u64> {
+    if let Ok(all_lines) = read_lines("/proc/stat") {
+        let elements = vec![("btime", false)];
+        let lines = parse_lines_no_separator(all_lines, elements);
+
+        return parse_number_no_separator(&lines[0]);
     }
 
     None
@@ -87,30 +77,12 @@ fn parse_version() -> Option<String> {
     None
 }
 
-fn parse_cpuinfo() -> Option<Vec<String>> {
+fn parse_cpuinfo() -> Option<String> {
     if let Ok(lines) = read_lines("/proc/cpuinfo") {
-        let elements = vec![
-            ("vendor_id", false),
-            ("model name", false),
-            ("cpu cores", false),
-            ("cpu MHz", false),
-        ];
+        let elements = vec![ ("model name", false) ];
+        let lines = parse_lines(lines, elements, true);
 
-        return Some(parse_lines(lines, elements, false));
-    }
-
-    None
-}
-
-fn parse_meminfo() -> Option<Vec<String>> {
-    if let Ok(lines) = read_lines("/proc/meminfo") {
-        let elements = vec![
-            ("MemTotal:", false),
-            ("MemFree:", false),
-            ("MemAvailable:", false),
-        ];
-
-        return Some(parse_lines(lines, elements, false));
+        return Some(lines[0].clone());
     }
 
     None
@@ -131,7 +103,23 @@ fn parse_mem_size() -> Option<u32> {
 mod tests {
     use std::path::PathBuf;
 
+    use crate::platform::utils::{parse_lines_no_separator, parse_number_no_separator};
+
     use super::*;
+
+    #[test]
+    fn boottime() {
+        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        path.push("resources/test/proc/stat");
+
+        let all_lines = read_lines(path).expect("Could not read");
+        let elements = vec![("btime", false)];
+        let lines = parse_lines_no_separator(all_lines, elements);
+        
+        let expected: u64 = 1731345124;
+
+        assert_eq!(parse_number_no_separator(&lines[0]), Some(expected));
+    }
 
     #[test]
     fn hostname() {
@@ -181,25 +169,6 @@ mod tests {
         let info = parse_lines(lines, elements, true);
         assert_eq!(info.len(), 1);
         assert_eq!(info[0], "ARMv7 Processor rev 10 (v7l)");
-    }
-
-    #[test]
-    fn meminfo() {
-        let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push("resources/test/proc/meminfo");
-
-        let lines = read_lines(path).expect("Could not read");
-        let elements = vec![
-            ("MemTotal:", false),
-            ("MemFree:", false),
-            ("MemAvailable:", false),
-        ];
-
-        let info = parse_lines(lines, elements, false);
-        assert_eq!(info.len(), 3);
-        assert_eq!(info[0], "MemTotal: 990180 kB");
-        assert_eq!(info[1], "MemFree: 934760 kB");
-        assert_eq!(info[2], "MemAvailable: 940044 kB");
     }
 
     #[test]

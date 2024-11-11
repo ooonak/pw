@@ -40,6 +40,12 @@ pub fn parse_lines(
     info
 }
 
+pub fn parse_lines_no_separator(
+    lines: Vec<String>,
+    elements: Vec<(&str, bool)>) -> Vec<String> {
+    parse_lines(lines, elements, false)
+}
+
 fn parse_line(line: &String, drop_key: bool, info: &mut Vec<String>) {
     let words: Vec<&str> = line.split_whitespace().collect();
     let mut line = words.join(" ");
@@ -60,6 +66,15 @@ fn remove_key(line: &mut String) {
 pub fn parse_number<T: FromStr>(input: &str) -> Result<T, <T as FromStr>::Err> {
     let i = input.find(|c: char| !c.is_numeric()).unwrap_or(input.len());
     input[..i].parse::<T>()
+}
+
+pub fn parse_number_no_separator<T: FromStr>(input: &str) -> Option<T> {
+    let words: Vec<&str> = input.split_whitespace().collect();
+    if words.len() >= 2 {
+        return parse_number(words[1]).ok();
+    }
+    
+    None
 }
 
 pub fn find_default_dev() -> Option<String> {
