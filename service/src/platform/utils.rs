@@ -40,9 +40,7 @@ pub fn parse_lines(
     info
 }
 
-pub fn parse_lines_no_separator(
-    lines: Vec<String>,
-    elements: Vec<(&str, bool)>) -> Vec<String> {
+pub fn parse_lines_no_separator(lines: Vec<String>, elements: Vec<(&str, bool)>) -> Vec<String> {
     parse_lines(lines, elements, false)
 }
 
@@ -73,7 +71,7 @@ pub fn parse_number_no_separator<T: FromStr>(input: &str) -> Option<T> {
     if words.len() >= 2 {
         return parse_number(words[1]).ok();
     }
-    
+
     None
 }
 

@@ -1,4 +1,7 @@
-use super::utils::{find_default_dev, find_iface_info, parse_lines, parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines};
+use super::utils::{
+    find_default_dev, find_iface_info, parse_lines, parse_lines_no_separator, parse_number,
+    parse_number_no_separator, read_lines,
+};
 
 pub fn load() -> common::pw::messages::Machine {
     let mut machine = common::pw::messages::Machine::default();
@@ -79,7 +82,7 @@ fn parse_version() -> Option<String> {
 
 fn parse_cpuinfo() -> Option<String> {
     if let Ok(lines) = read_lines("/proc/cpuinfo") {
-        let elements = vec![ ("model name", false) ];
+        let elements = vec![("model name", false)];
         let lines = parse_lines(lines, elements, true);
 
         return Some(lines[0].clone());
@@ -115,7 +118,7 @@ mod tests {
         let all_lines = read_lines(path).expect("Could not read");
         let elements = vec![("btime", false)];
         let lines = parse_lines_no_separator(all_lines, elements);
-        
+
         let expected: u64 = 1731345124;
 
         assert_eq!(parse_number_no_separator(&lines[0]), Some(expected));
