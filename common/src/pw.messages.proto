@@ -2,15 +2,31 @@ syntax = "proto3";
 
 package pw.messages;
 
-message Machine {
+message NetworkInterface {
     uint64 mac = 1;
-    uint32 ipv4 = 2;
-    uint64 boottime = 3;
-    string bootid = 4;
-    string hostname = 5;
-    string version = 6;
-    string cpu_model_name = 7;
-    uint32 physical_mem_total_kb = 9;
+    string name = 2;
+    
+    enum rtpproto {
+        unknown = 0;
+        static = 1;
+        dhcp = 2;
+    }
+
+    rtpproto proto = 3;
+    uint32 ipv4 = 4;
+    uint32 subnet_mask = 5;
+    uint32 broadcast = 6;
+    uint32 gateway = 7;
+}
+
+message Machine {
+    uint64 boottime = 1;
+    string bootid = 2;
+    string hostname = 3;
+    string version = 4;
+    string cpu_model_name = 5;
+    uint32 physical_mem_total_kb = 6;
+    NetworkInterface network_interface = 7;
 }
 
 message Process {

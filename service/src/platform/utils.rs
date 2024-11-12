@@ -75,18 +75,58 @@ pub fn parse_number_no_separator<T: FromStr>(input: &str) -> Option<T> {
     None
 }
 
-pub fn find_default_dev() -> Option<String> {
+fn parse_ip_route_info(input: &str) -> Vec<String> {
+    // We need room for three strings: name, protocol & gateway.
+    let mut output = vec![ "".to_string(), "".to_string(), "".to_string() ];
+
+    for line in input.lines() {
+        if output[0].is_empty() && input.contains("default") {
+            let words: Vec<&str> = input.trim().split_whitespace().collect();
+            println!("{:?}", words);
+            if words.len() >= 7 {
+                // words[4] is name
+                output[0] = words[4].to_string();
+                // words[6] is proto
+                output[1] = words[6].to_string();
+                // words[2] is gateway
+                output[2] = words[2].to_string();
+            }
+        }
+    }
+
+    output
+}
+
+fn parse_ip_address_info(input: &str) -> Vec<String> {
+    // We need room for three strings: ip/mask, broadcast & mac.
+    let mut output = vec![ "".to_string(), "".to_string(), "".to_string() ];
+
+    for line in input.lines() {
+        if output[2].is_empty() && line.contains("link/ether") {
+            let words: Vec<&str> = line.split_whitespace().collect();
+            if words.len() >= 2 {
+                // words[1] is mac
+                output[2] = words[1].to_string();
+            }
+        } else if output[0].is_empty() && line.contains("inet") {
+            let words: Vec<&str> = line.split_whitespace().collect();
+            if words.len() >= 4 {
+                // words[1] is ipv4/subnet_mask
+                output[0] = words[1].to_string();
+                // words[3] is broadcast
+                output[1] = words[3].to_string();
+            }
+        }
+    }
+
+    output
+}
+
+pub fn find_default_dev() -> Option<Vec<String>> {
     // Simple manual approach instead of local-ip-address crate, sysfs and getifaddrs is not an option on Android.
     if let Ok(output) = Command::new("ip").arg("route").output() {
         let stdout = String::from_utf8(output.stdout).unwrap();
-        for line in stdout.lines() {
-            if line.starts_with("default") {
-                let words: Vec<&str> = line.split_whitespace().collect();
-                if words.len() >= 4 {
-                    return Some(words[4].to_string());
-                }
-            }
-        }
+                return Some(parse_ip_route_info(&stdout));
     }
 
     None
@@ -111,7 +151,7 @@ fn ip_from_string(ip_string: &str) -> u32 {
     }
 }
 
-pub fn find_iface_info(dev: &str) -> Option<(u64, u32)> {
+pub fn find_iface_info(dev: &str) -> Option<Vec<String>> {
     // Simple manual approach instead of local-ip-address crate, sysfs and getifaddrs is not an option on Android.
     if let Ok(output) = Command::new("ip")
         .arg("address")
@@ -120,27 +160,7 @@ pub fn find_iface_info(dev: &str) -> Option<(u64, u32)> {
         .output()
     {
         let stdout = String::from_utf8(output.stdout).unwrap();
-
-        let mut mac: u64 = 0;
-        let mut ip4: u32 = 0;
-
-        for line in stdout.lines() {
-            if line.contains("link/ether") {
-                let words: Vec<&str> = line.split_whitespace().collect();
-                if words.len() >= 2 {
-                    mac = mac_from_string(words[1]);
-                }
-            } else if line.contains("inet") {
-                let words: Vec<&str> = line.split_whitespace().collect();
-                if words.len() >= 2 {
-                    ip4 = ip_from_string(words[1]);
-                }
-            }
-
-            if mac != 0 && ip4 != 0 {
-                return Some((mac, ip4));
-            }
-        }
+        return Some(parse_ip_address_info(&stdout));
     }
 
     None
@@ -163,5 +183,19 @@ mod tests {
         let result = read_lines("/tmp/dontexists/boot_id").map_err(|e| e.kind());
         let expected = Err(std::io::ErrorKind::NotFound);
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn parse_ip_route_info_ok() {
+        let input = "default via 192.168.42.1 dev eth0 proto dhcp src 192.168.42.105 metric 100\n192.168.42.0/24 dev eth0 proto kernel scope link src 192.168.42.105 metric 100";
+        let expected = vec![ "eth0".to_string(), "dhcp".to_string(), "192.168.42.1".to_string() ];
+        assert_eq!(parse_ip_route_info(input), expected);
+    }
+
+    #[test]
+    fn parse_ip_address_info_ok() {
+        let input = "2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000\n    link/ether b8:27:eb:10:c6:85 brd ff:ff:ff:ff:ff:ff\n    inet 192.168.42.105/24 brd 192.168.42.255 scope global dynamic noprefixroute eth0\n       valid_lft 69343sec preferred_lft 69343sec\n    inet6 fe80::bbdd:4dac:bd7c:d839/64 scope link noprefixroute\n       valid_lft forever preferred_lft forever";
+        let expected = vec![ "192.168.42.105/24".to_string(), "192.168.42.255".to_string(), "b8:27:eb:10:c6:85".to_string() ];
+        assert_eq!(parse_ip_address_info(input), expected);
     }
 }

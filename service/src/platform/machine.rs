@@ -1,3 +1,5 @@
+use common::pw;
+
 use super::utils::{
     find_default_dev, find_iface_info, parse_lines, parse_lines_no_separator, parse_number,
     parse_number_no_separator, read_lines,
@@ -5,10 +7,6 @@ use super::utils::{
 
 pub fn load() -> common::pw::messages::Machine {
     let mut machine = common::pw::messages::Machine::default();
-
-    if let Some(value) = parse_mac_and_ip() {
-        (machine.mac, machine.ipv4) = value;
-    }
 
     if let Some(value) = parse_boottime() {
         machine.boottime = value;
@@ -34,15 +32,9 @@ pub fn load() -> common::pw::messages::Machine {
         machine.physical_mem_total_kb = value;
     }
 
+    machine.network_interface = parse_network_info();
+
     machine
-}
-
-fn parse_mac_and_ip() -> Option<(u64, u32)> {
-    if let Some(dev) = find_default_dev() {
-        return find_iface_info(&dev);
-    }
-
-    None
 }
 
 fn parse_boottime() -> Option<u64> {
@@ -100,6 +92,10 @@ fn parse_mem_size() -> Option<u32> {
     }
 
     None
+}
+
+fn parse_network_info() -> Option<pw::messages::NetworkInterface> {
+    todo!()
 }
 
 #[cfg(test)]

@@ -5,7 +5,7 @@ use zenoh::bytes::ZBytes;
 async fn send_machine_info(session: &zenoh::Session, machine: &pw::messages::Machine) {
     let payload = ZBytes::from(common::serialize_machine(machine));
 
-    let key = format!("{}/{}", MACHINE_KEY_EXPR, machine.mac);
+    let key = format!("{}/{}", MACHINE_KEY_EXPR, machine.cpu_model_name);
 
     println!("Putting Data ('{key}': {} bytes)...", payload.len());
 
@@ -25,7 +25,7 @@ async fn main() {
 
     send_machine_info(&session, &machine).await;
 
-    let key = format!("pw/command/{}", machine.mac);
+    let key = format!("pw/command/{}", machine.cpu_model_name);
     println!("Declaring Subscriber on '{}'...", &key);
 
     let subscriber = session.declare_subscriber(&key).await.unwrap();
