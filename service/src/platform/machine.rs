@@ -1,8 +1,8 @@
 use common::pw;
 
 use super::utils::{
-    find_default_dev, find_iface_info, parse_lines, parse_lines_no_separator, parse_number,
-    parse_number_no_separator, read_lines,
+    get_default_route_info, get_ip_address_info, ip_from_string, mac_from_string, parse_lines,
+    parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines,
 };
 
 pub fn load() -> common::pw::messages::Machine {
@@ -32,7 +32,9 @@ pub fn load() -> common::pw::messages::Machine {
         machine.physical_mem_total_kb = value;
     }
 
-    machine.network_interface = parse_network_info();
+    if let Some(value) = parse_network_info() {
+        machine.network_interface = Some(value);
+    }
 
     machine
 }
@@ -95,7 +97,32 @@ fn parse_mem_size() -> Option<u32> {
 }
 
 fn parse_network_info() -> Option<pw::messages::NetworkInterface> {
-    todo!()
+    if let Some(route_info) = get_default_route_info() {
+        if let Some(address_info) = get_ip_address_info(&route_info[0]) {
+            let mut info = pw::messages::NetworkInterface::default();
+            info.name = route_info[0].to_string();
+
+            if route_info[1] == "static" {
+                info.set_proto(pw::messages::network_interface::Rtpproto::Static);
+            } else if route_info[1] == "dhcp" {
+                info.set_proto(pw::messages::network_interface::Rtpproto::Dhcp);
+            } else {
+                info.set_proto(pw::messages::network_interface::Rtpproto::Unknown);
+            }
+
+            info.mac = mac_from_string(&address_info[3]);
+            info.ipv4 = ip_from_string(&address_info[0]);
+            if let Ok(mask) = parse_number(&address_info[1]) {
+                info.subnet_mask = mask;
+            }
+            info.broadcast = ip_from_string(&address_info[2]);
+            info.gateway = ip_from_string(&route_info[2]);
+
+            return Some(info);
+        }
+    }
+
+    None
 }
 
 #[cfg(test)]
@@ -183,4 +210,23 @@ mod tests {
 
         assert_eq!(parse_number(&lines[0]).ok(), Some(expected));
     }
+
+    /*
+    #[test]
+    fn parse_network_info_ok() {
+        let input_route_info = "default via 192.168.42.1 dev eth0 proto dhcp src 192.168.42.105 metric 100\n192.168.42.0/24 dev eth0 proto kernel scope link src 192.168.42.105 metric 100";
+        let input_addres_info = "2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000\n    link/ether b8:27:eb:10:c6:85 brd ff:ff:ff:ff:ff:ff\n    inet 192.168.42.105/24 brd 192.168.42.255 scope global dynamic noprefixroute eth0\n       valid_lft 69343sec preferred_lft 69343sec\n    inet6 fe80::bbdd:4dac:bd7c:d839/64 scope link noprefixroute\n       valid_lft forever preferred_lft forever";
+
+        let mut expected = pw::messages::NetworkInterface::default();
+        expected.name = "eth0".to_string();
+        expected.set_proto(pw::messages::network_interface::Rtpproto::Dhcp);
+        expected.mac = mac_from_string("b8:27:eb:10:c6:85");
+        expected.ipv4 = ip_from_string("192.168.42.105");
+        expected.subnet_mask = parse_number("24").unwrap();
+        expected.gateway = ip_from_string("192.168.42.1");
+        expected.broadcast = ip_from_string("192.168.42.255");
+
+        assert_eq!(parse_network_info(), Some(expected));
+    }
+    */
 }

@@ -1,4 +1,4 @@
-use common::{deserialize_machine, MACHINE_KEY_EXPR};
+use common::{deserialize_machine, BASE_KEY_EXPR, MACHINE_KEY_EXPR};
 
 #[tokio::main]
 async fn main() {
@@ -8,7 +8,7 @@ async fn main() {
 
     let session = zenoh::open(config).await.unwrap();
 
-    let key = format!("{}/**", MACHINE_KEY_EXPR);
+    let key = format!("{}/*/{}/*", BASE_KEY_EXPR, MACHINE_KEY_EXPR);
 
     let replies = session.get(key).await.unwrap();
 

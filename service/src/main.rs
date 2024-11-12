@@ -1,15 +1,15 @@
-use common::{pw, MACHINE_KEY_EXPR};
+use common::{pw, BASE_KEY_EXPR, MACHINE_KEY_EXPR};
 mod platform;
 use zenoh::bytes::ZBytes;
 
-async fn send_machine_info(session: &zenoh::Session, machine: &pw::messages::Machine) {
-    let payload = ZBytes::from(common::serialize_machine(machine));
+pub const GROUP_KEY_EXPR: &str = "1";
 
-    let key = format!("{}/{}", MACHINE_KEY_EXPR, machine.cpu_model_name);
+async fn send_machine_info(session: &zenoh::Session, key: &str, machine: &pw::messages::Machine) {
+    let payload = ZBytes::from(common::serialize_machine(machine));
 
     println!("Putting Data ('{key}': {} bytes)...", payload.len());
 
-    session.put(&key, payload).await.unwrap();
+    session.put(key, payload).await.unwrap();
 }
 
 #[tokio::main]
@@ -22,11 +22,25 @@ async fn main() {
     let session = zenoh::open(config).await.unwrap();
 
     let machine = platform::machine::load();
+    if machine.network_interface.is_none() {
+        todo!("Log and abort");
+    }
 
-    send_machine_info(&session, &machine).await;
+    println!("{:?}", machine);
 
-    let key = format!("pw/command/{}", machine.cpu_model_name);
-    println!("Declaring Subscriber on '{}'...", &key);
+    let key = format!(
+        "{}/{}/{}/{}",
+        BASE_KEY_EXPR,
+        GROUP_KEY_EXPR,
+        MACHINE_KEY_EXPR,
+        machine.network_interface.as_ref().unwrap().mac
+    );
+    println!("{}", key);
+
+    send_machine_info(&session, &key, &machine).await;
+
+    //let key = format!("pw/command/{}", machine.network_interface.unwrap().mac);
+    //println!("Declaring Subscriber on '{}'...", &key);
 
     let subscriber = session.declare_subscriber(&key).await.unwrap();
 

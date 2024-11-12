@@ -1,6 +1,7 @@
 use prost::Message;
 
-pub const MACHINE_KEY_EXPR: &str = "pw/machine";
+pub const BASE_KEY_EXPR: &str = "pw";
+pub const MACHINE_KEY_EXPR: &str = "machine";
 
 pub mod pw {
     pub mod messages {
@@ -27,7 +28,7 @@ mod tests {
     #[test]
     fn serialize_machine() {
         let mut machine = pw::messages::Machine::default();
-        machine.mac = 12345678;
+        machine.boottime = 12345678;
 
         let buffer = super::serialize_machine(&machine);
 
@@ -43,7 +44,7 @@ mod tests {
         let machine = super::deserialize_machine(&buffer);
 
         let mut expected = pw::messages::Machine::default();
-        expected.mac = 12345678;
+        expected.boottime = 12345678;
 
         assert_eq!(machine.unwrap(), expected);
     }
