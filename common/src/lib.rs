@@ -10,8 +10,8 @@ pub mod pw {
 }
 
 pub fn serialize_machine(machine: &pw::messages::Machine) -> Vec<u8> {
-    let mut buf = Vec::new();
-    buf.reserve(machine.encoded_len());
+    let mut buf = Vec::with_capacity(machine.encoded_len());
+
     // Unwrap is safe, we have reserved capacity in the vector.
     machine.encode(&mut buf).unwrap();
     buf

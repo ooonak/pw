@@ -99,8 +99,10 @@ fn parse_mem_size() -> Option<u32> {
 fn parse_network_info() -> Option<pw::messages::NetworkInterface> {
     if let Some(route_info) = get_default_route_info() {
         if let Some(address_info) = get_ip_address_info(&route_info[0]) {
-            let mut info = pw::messages::NetworkInterface::default();
-            info.name = route_info[0].to_string();
+            let mut info = common::pw::messages::NetworkInterface {
+                name: route_info[0].to_string(),
+                ..Default::default()
+            };
 
             if route_info[1] == "static" {
                 info.set_proto(pw::messages::network_interface::Rtpproto::Static);

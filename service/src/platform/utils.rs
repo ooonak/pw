@@ -59,7 +59,7 @@ pub fn parse_lines_no_separator(lines: Vec<String>, elements: Vec<(&str, bool)>)
     parse_lines(lines, elements, false)
 }
 
-fn parse_line(line: &String, drop_key: bool, info: &mut Vec<String>) {
+fn parse_line(line: &str, drop_key: bool, info: &mut Vec<String>) {
     let words: Vec<&str> = line.split_whitespace().collect();
     let mut line = words.join(" ");
 
