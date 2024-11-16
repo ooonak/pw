@@ -1,5 +1,5 @@
 use anyhow::Result;
-use vergen_git2::{ BuildBuilder, Git2Builder, Emitter };
+use vergen_git2::{BuildBuilder, Emitter, Git2Builder};
 
 fn main() -> Result<()> {
     let build_timestamp = BuildBuilder::default().build_timestamp(true).build()?;

@@ -7,7 +7,8 @@ pub const GROUP_KEY_EXPR: &str = "grp1";
 
 fn version_info() -> String {
     if cfg!(debug_assertions) {
-        format!("{} v{} debug (Git SHA: {}, dirty: {}, build time: {})",
+        format!(
+            "{} v{} debug (Git SHA: {}, dirty: {}, build time: {})",
             option_env!("CARGO_PKG_NAME").unwrap_or_default(),
             option_env!("CARGO_PKG_VERSION").unwrap_or_default(),
             option_env!("VERGEN_GIT_SHA").unwrap_or_default(),
@@ -15,7 +16,8 @@ fn version_info() -> String {
             option_env!("VERGEN_BUILD_TIMESTAMP").unwrap_or_default()
         )
     } else {
-        format!("{} v{}",
+        format!(
+            "{} v{}",
             option_env!("CARGO_PKG_NAME").unwrap_or_default(),
             option_env!("CARGO_PKG_VERSION").unwrap_or_default()
         )
@@ -42,7 +44,6 @@ async fn main() {
     let machine = platform::machine::load();
     if machine.network_interface.is_none() {
         error!("Failed to collect information about default network interface, giving up.");
-
     }
 
     let key_expr_machine = format!(
@@ -63,7 +64,11 @@ async fn main() {
         machine.network_interface.as_ref().unwrap().mac
     );
 
-    let token = session.liveliness().declare_token(&key_expr_liveliness).await.unwrap();
+    let token = session
+        .liveliness()
+        .declare_token(&key_expr_liveliness)
+        .await
+        .unwrap();
 
     //let key = format!("pw/command/{}", machine.network_interface.unwrap().mac);
     //println!("Declaring Subscriber on '{}'...", &key);
