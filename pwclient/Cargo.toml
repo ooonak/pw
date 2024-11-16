@@ -1,6 +1,6 @@
 [package]
-name = "common"
-description = "Library with common features for process watcher."
+name = "pwclient"
+description = "Process Watcher tool client with text user interface."
 rust-version = { workspace = true }
 version = { workspace = true }
 repository = { workspace = true }
@@ -11,7 +11,8 @@ license = { workspace = true }
 categories = { workspace = true }
 
 [dependencies]
-prost = "0.13.3"
-
-[build-dependencies]
-prost-build = "0.13.3"
+common = { workspace = true }
+tokio = { workspace = true }
+zenoh = { workspace = true }
+zenoh-ext = { workspace = true }
+ratatui = "0.29.0"

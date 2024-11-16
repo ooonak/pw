@@ -1,6 +1,10 @@
 use prost::Message;
 
-pub const MACHINE_KEY_EXPR: &str = "pw/machine";
+pub const BASE_KEY_EXPR: &str = "pw";
+pub const GROUP_KEY_EXPR: &str = "1";
+pub const MACHINE_KEY_EXPR: &str = "m";
+pub const LIVELINESS_KEY_EXPR: &str = "l";
+pub const COMMAND_KEY_EXPR: &str = "c";
 
 pub mod pw {
     pub mod messages {
@@ -9,8 +13,8 @@ pub mod pw {
 }
 
 pub fn serialize_machine(machine: &pw::messages::Machine) -> Vec<u8> {
-    let mut buf = Vec::new();
-    buf.reserve(machine.encoded_len());
+    let mut buf = Vec::with_capacity(machine.encoded_len());
+
     // Unwrap is safe, we have reserved capacity in the vector.
     machine.encode(&mut buf).unwrap();
     buf
@@ -27,7 +31,7 @@ mod tests {
     #[test]
     fn serialize_machine() {
         let mut machine = pw::messages::Machine::default();
-        machine.mac = 12345678;
+        machine.boottime = 12345678;
 
         let buffer = super::serialize_machine(&machine);
 
@@ -43,7 +47,7 @@ mod tests {
         let machine = super::deserialize_machine(&buffer);
 
         let mut expected = pw::messages::Machine::default();
-        expected.mac = 12345678;
+        expected.boottime = 12345678;
 
         assert_eq!(machine.unwrap(), expected);
     }
