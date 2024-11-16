@@ -1,5 +1,6 @@
 use common::{pw, BASE_KEY_EXPR, MACHINE_KEY_EXPR};
 mod platform;
+use log::{error, info};
 use zenoh::bytes::ZBytes;
 
 pub const GROUP_KEY_EXPR: &str = "1";
@@ -7,26 +8,23 @@ pub const GROUP_KEY_EXPR: &str = "1";
 async fn send_machine_info(session: &zenoh::Session, key: &str, machine: &pw::messages::Machine) {
     let payload = ZBytes::from(common::serialize_machine(machine));
 
-    println!("Putting Data ('{key}': {} bytes)...", payload.len());
-
+    info!("Joining, telling about me on '{key}'");
     session.put(key, payload).await.unwrap();
 }
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
     zenoh::init_log_from_env_or("error");
 
     let config = zenoh::Config::default();
-
-    println!("Opening session...");
     let session = zenoh::open(config).await.unwrap();
 
     let machine = platform::machine::load();
     if machine.network_interface.is_none() {
-        todo!("Log and abort");
-    }
+        error!("Failed to collect information about default network interface, giving up.");
 
-    println!("{:?}", machine);
+    }
 
     let key = format!(
         "{}/{}/{}/{}",
@@ -35,7 +33,6 @@ async fn main() {
         MACHINE_KEY_EXPR,
         machine.network_interface.as_ref().unwrap().mac
     );
-    println!("{}", key);
 
     send_machine_info(&session, &key, &machine).await;
 
