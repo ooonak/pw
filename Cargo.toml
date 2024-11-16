@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "common", "client", "service" ]
+members = [ "common", "pwclient", "pwservice" ]
 
 [profile.dev]
 debug = true
@@ -20,9 +20,10 @@ authors = [ "abc <a@b.c>" ]
 edition = "2021"
 license = "Apache-2.0"
 categories = ["linux-system-tools"]
-description = "pw: Process Watcher."
+description = "pw: Process Watcher tool."
 
 [workspace.dependencies]
+common = { path = "./common" }
 tokio = "1.41.0"
 zenoh = { version = "1.0.2", default-features = true }
 zenoh-ext = { version = "1.0.2", features = ["unstable"] }

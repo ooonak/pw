@@ -1,7 +1,5 @@
-use common::{deserialize_machine, BASE_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR};
+use common::{deserialize_machine, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR};
 use zenoh::{config::ZenohId, sample::SampleKind};
-
-pub const GROUP_KEY_EXPR: &str = "grp1";
 
 async fn zenoh_info(session: &zenoh::Session) {
     let info = session.info();
@@ -26,11 +24,12 @@ async fn main() {
     zenoh_info(&session).await;
 
     let key_expr_machine = format!(
-        "{}/{}/{}/*",
+        "{}/{}/{}/**",
         BASE_KEY_EXPR,
         GROUP_KEY_EXPR,
         MACHINE_KEY_EXPR,
     );
+    println!("Declaring Machine Subscriber on '{key_expr_machine}'...");
 
     let replies = session.get(key_expr_machine).await.unwrap();
     while let Ok(reply) = replies.recv_async().await {
@@ -75,11 +74,11 @@ async fn main() {
     while let Ok(sample) = subscriber.recv_async().await {
         match sample.kind() {
             SampleKind::Put => println!(
-                ">> [LivelinessSubscriber] New alive token ('{}')",
+                "machine online ('{}')",
                 sample.key_expr().as_str()
             ),
             SampleKind::Delete => println!(
-                ">> [LivelinessSubscriber] Dropped token ('{}')",
+                "machine offline ('{}')",
                 sample.key_expr().as_str()
             ),
         }

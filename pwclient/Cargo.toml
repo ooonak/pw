@@ -1,6 +1,6 @@
 [package]
-name = "service"
-description = "Service for process watcher."
+name = "pwclient"
+description = "Process Watcher tool client with text user interface."
 rust-version = { workspace = true }
 version = { workspace = true }
 repository = { workspace = true }
@@ -11,13 +11,8 @@ license = { workspace = true }
 categories = { workspace = true }
 
 [dependencies]
-common = { path = "../common" }
-env_logger = "0.11.5"
-log = "0.4.22"
+common = { workspace = true }
 tokio = { workspace = true }
 zenoh = { workspace = true }
 zenoh-ext = { workspace = true }
-
-[build-dependencies]
-anyhow = "1.0.93"
-vergen-git2 = { version = "1.0.1", features = ["build", "cargo", "rustc"] }
+ratatui = "0.29.0"

@@ -6,18 +6,32 @@
 
 I created the "Process Watcher tool" or pw as a little project while teaching myself Rust.
 
-The project consists of two binaries. A service (pw) running on a Linux target and a client (pwtui) that is running on your laptop. The pw service sends information about the machine and running processes. The pwtui client displayes this information. Like a distributed version of top.
+The project consists of two binaries. A service (pwservice) running on a Linux target and a client (pwclient) that is running on your laptop. The service sends information about the machine, running processes and their threads. The client displayes this information in a TUI. Like a distributed version of top.
 
 ## Test-spin
 
 If you just wan't to build and start the service on your dev machine.
 
 ```
-$ RUST_LOG=INFO cargo run --bin service
+$ RUST_LOG=INFO cargo run --bin pwservice
 ```
 
 And in another terminal.
 
 ```
-$ cargo run --bin service
+$ cargo run --bin pwclient
+```
+
+## Cross-compile
+
+Using the cross crate to build for e.g. RPi3. First install the cross crate.
+
+```
+$ cargo install cross --git https://github.com/cross-rs/cross
+```
+
+Then build, cross uses crosstool-ng toolchains in Docker containers.
+
+```
+$ cross build -p pwservice --release --target armv7-unknown-linux-gnueabihf
 ```

@@ -1,8 +1,10 @@
 use prost::Message;
 
 pub const BASE_KEY_EXPR: &str = "pw";
-pub const MACHINE_KEY_EXPR: &str = "machine";
-pub const LIVELINESS_KEY_EXPR: &str = "liveliness";
+pub const GROUP_KEY_EXPR: &str = "1";
+pub const MACHINE_KEY_EXPR: &str = "m";
+pub const LIVELINESS_KEY_EXPR: &str = "l";
+pub const COMMAND_KEY_EXPR: &str = "c";
 
 pub mod pw {
     pub mod messages {
