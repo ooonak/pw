@@ -1,14 +1,22 @@
 [package]
 name = "service"
-version = "0.1.0"
-edition = "2021"
+description = "Service for process watcher."
+rust-version = { workspace = true }
+version = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+categories = { workspace = true }
 
 [dependencies]
 common = { path = "../common" }
 env_logger = "0.11.5"
 log = "0.4.22"
-tokio = "1.41.0"
-zenoh = "1.0.2"
+tokio = { workspace = true }
+zenoh = { workspace = true }
+zenoh-ext = { workspace = true }
 
 [build-dependencies]
 anyhow = "1.0.93"
