@@ -1,9 +1,9 @@
-use common::{pw, BASE_KEY_EXPR, MACHINE_KEY_EXPR};
+use common::{pw, BASE_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR};
 mod platform;
 use log::{error, info};
 use zenoh::bytes::ZBytes;
 
-pub const GROUP_KEY_EXPR: &str = "1";
+pub const GROUP_KEY_EXPR: &str = "grp1";
 
 fn version_info() -> String {
     if cfg!(debug_assertions) {
@@ -45,7 +45,7 @@ async fn main() {
 
     }
 
-    let key = format!(
+    let key_expr_machine = format!(
         "{}/{}/{}/{}",
         BASE_KEY_EXPR,
         GROUP_KEY_EXPR,
@@ -53,12 +53,22 @@ async fn main() {
         machine.network_interface.as_ref().unwrap().mac
     );
 
-    send_machine_info(&session, &key, &machine).await;
+    send_machine_info(&session, &key_expr_machine, &machine).await;
+
+    let key_expr_liveliness = format!(
+        "{}/{}/{}/{}",
+        BASE_KEY_EXPR,
+        GROUP_KEY_EXPR,
+        LIVELINESS_KEY_EXPR,
+        machine.network_interface.as_ref().unwrap().mac
+    );
+
+    let token = session.liveliness().declare_token(&key_expr_liveliness).await.unwrap();
 
     //let key = format!("pw/command/{}", machine.network_interface.unwrap().mac);
     //println!("Declaring Subscriber on '{}'...", &key);
 
-    let subscriber = session.declare_subscriber(&key).await.unwrap();
+    let subscriber = session.declare_subscriber(&key_expr_machine).await.unwrap();
 
     println!("Press CTRL-C to quit...");
 
@@ -81,4 +91,6 @@ async fn main() {
         }
         println!();
     }
+
+    token.undeclare().await.unwrap();
 }
