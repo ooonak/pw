@@ -5,6 +5,23 @@ use zenoh::bytes::ZBytes;
 
 pub const GROUP_KEY_EXPR: &str = "1";
 
+fn version_info() -> String {
+    if cfg!(debug_assertions) {
+        format!("{} v{} debug (Git SHA: {}, dirty: {}, build time: {})",
+            option_env!("CARGO_PKG_NAME").unwrap_or_default(),
+            option_env!("CARGO_PKG_VERSION").unwrap_or_default(),
+            option_env!("VERGEN_GIT_SHA").unwrap_or_default(),
+            option_env!("VERGEN_GIT_DIRTY").unwrap_or_default(),
+            option_env!("VERGEN_BUILD_TIMESTAMP").unwrap_or_default()
+        )
+    } else {
+        format!("{} v{}",
+            option_env!("CARGO_PKG_NAME").unwrap_or_default(),
+            option_env!("CARGO_PKG_VERSION").unwrap_or_default()
+        )
+    }
+}
+
 async fn send_machine_info(session: &zenoh::Session, key: &str, machine: &pw::messages::Machine) {
     let payload = ZBytes::from(common::serialize_machine(machine));
 
@@ -15,6 +32,8 @@ async fn send_machine_info(session: &zenoh::Session, key: &str, machine: &pw::me
 #[tokio::main]
 async fn main() {
     env_logger::init();
+    info!("Starting {}", version_info());
+
     zenoh::init_log_from_env_or("error");
 
     let config = zenoh::Config::default();
