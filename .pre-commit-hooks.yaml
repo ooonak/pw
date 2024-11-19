@@ -2,33 +2,33 @@
   name: cargo fmt
   description: Format rust files with cargo fmt
   entry: cargo fmt
-  language: rust
+  language: system
   types: [rust]
-  require_serial: true
+  pass_filenames: false
 
 - id: cargo-check
   name: cargo check
   description: Run cargo check for compilation errors
   entry: cargo check
-  language: rust
+  language: system
   types: [rust]
-  require_serial: true
+  pass_filenames: false
 
 - id: cargo-clippy
   name: cargo clippy
   description: Run cargo clippy lint tool
   entry: cargo clippy
-  language: rust
+  language: system
   types: [rust]
-  require_serial: true
+  pass_filenames: false
 
 - id: cargo-machete
   name: cargo machete
   description: Run cargo machete dependency checker
   entry: cargo machete
-  language: rust
+  language: system
   types: [rust]
-  require_serial: true
+  pass_filenames: false
 
 # https://github.com/crate-ci/typos/blob/master/.pre-commit-hooks.yaml
 - id: typos
