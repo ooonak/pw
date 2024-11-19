@@ -6,7 +6,7 @@
 
 I created the "Process Watcher tool" or pw as a little project while teaching myself Rust.
 
-The project consists of two binaries. A service (pwservice) running on a Linux target and a client (pwclient) that is running on your laptop. The service sends information about the machine, running processes and their threads. The client displayes this information in a TUI. Like a distributed version of top.
+The project consists of two binaries. A service (pwservice) running on a Linux target and a client (pwclient) that is running on your laptop. The service sends information about the machine, running processes and their threads. The client shows this information in a TUI. Like a distributed version of top.
 
 ## Test-spin
 

@@ -1,4 +1,6 @@
-use common::{deserialize_machine, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR};
+use common::{
+    deserialize_machine, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR,
+};
 use zenoh::{config::ZenohId, sample::SampleKind};
 
 async fn zenoh_info(session: &zenoh::Session) {
@@ -25,14 +27,13 @@ async fn main() {
 
     let key_expr_machine = format!(
         "{}/{}/{}/**",
-        BASE_KEY_EXPR,
-        GROUP_KEY_EXPR,
-        MACHINE_KEY_EXPR,
+        BASE_KEY_EXPR, GROUP_KEY_EXPR, MACHINE_KEY_EXPR,
     );
-    println!("Declaring Machine Subscriber on '{key_expr_machine}'...");
 
-    let replies = session.get(key_expr_machine).await.unwrap();
-    while let Ok(reply) = replies.recv_async().await {
+    println!("Declaring Machine getter on '{key_expr_machine}'...");
+
+    let machine_getter = session.get(key_expr_machine).await.unwrap();
+    while let Ok(reply) = machine_getter.recv_async().await {
         match reply.result() {
             Ok(sample) => {
                 let payload = &*(sample.payload().to_bytes());
@@ -56,32 +57,23 @@ async fn main() {
 
     let key_expr_liveliness = format!(
         "{}/{}/{}/**",
-        BASE_KEY_EXPR,
-        GROUP_KEY_EXPR,
-        LIVELINESS_KEY_EXPR
+        BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR
     );
 
     println!("Declaring Liveliness Subscriber on '{key_expr_liveliness}'...");
-    
-    let subscriber = session
-    .liveliness()
-    .declare_subscriber(&key_expr_liveliness)
-    .history(true)
-    .await
-    .unwrap();
+
+    let liveliness_subscriber = session
+        .liveliness()
+        .declare_subscriber(&key_expr_liveliness)
+        .history(true)
+        .await
+        .unwrap();
 
     println!("Press CTRL-C to quit...");
-    while let Ok(sample) = subscriber.recv_async().await {
+    while let Ok(sample) = liveliness_subscriber.recv_async().await {
         match sample.kind() {
-            SampleKind::Put => println!(
-                "machine online ('{}')",
-                sample.key_expr().as_str()
-            ),
-            SampleKind::Delete => println!(
-                "machine offline ('{}')",
-                sample.key_expr().as_str()
-            ),
+            SampleKind::Put => println!("machine online ('{}')", sample.key_expr().as_str()),
+            SampleKind::Delete => println!("machine offline ('{}')", sample.key_expr().as_str()),
         }
     }
-
 }

@@ -1,0 +1,2 @@
+[files]
+extend-exclude = [ "pwservice/src/platform/machine.rs", "pwservice/resources/*"]
