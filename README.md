@@ -1,6 +1,5 @@
 # Process Watcher tool
-
-[![Cargo Build & Test](https://github.com/ooonak/pw/actions/workflows/ci.yml/badge.svg)](https://github.com/ooonak/pw/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/ooonak/pw/actions/workflows/ci.yml/badge.svg)](https://github.com/ooonak/pw/actions/workflows/ci.yml)
 
 ## Overview
 
