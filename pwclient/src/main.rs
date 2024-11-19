@@ -1,4 +1,6 @@
-use common::{deserialize_machine, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR};
+use common::{
+    deserialize_machine, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR,
+};
 use zenoh::{config::ZenohId, sample::SampleKind};
 
 async fn zenoh_info(session: &zenoh::Session) {
@@ -25,9 +27,7 @@ async fn main() {
 
     let key_expr_machine = format!(
         "{}/{}/{}/**",
-        BASE_KEY_EXPR,
-        GROUP_KEY_EXPR,
-        MACHINE_KEY_EXPR,
+        BASE_KEY_EXPR, GROUP_KEY_EXPR, MACHINE_KEY_EXPR,
     );
 
     println!("Declaring Machine getter on '{key_expr_machine}'...");
@@ -57,32 +57,23 @@ async fn main() {
 
     let key_expr_liveliness = format!(
         "{}/{}/{}/**",
-        BASE_KEY_EXPR,
-        GROUP_KEY_EXPR,
-        LIVELINESS_KEY_EXPR
+        BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR
     );
 
     println!("Declaring Liveliness Subscriber on '{key_expr_liveliness}'...");
-    
+
     let liveliness_subscriber = session
-    .liveliness()
-    .declare_subscriber(&key_expr_liveliness)
-    .history(true)
-    .await
-    .unwrap();
+        .liveliness()
+        .declare_subscriber(&key_expr_liveliness)
+        .history(true)
+        .await
+        .unwrap();
 
     println!("Press CTRL-C to quit...");
     while let Ok(sample) = liveliness_subscriber.recv_async().await {
         match sample.kind() {
-            SampleKind::Put => println!(
-                "machine online ('{}')",
-                sample.key_expr().as_str()
-            ),
-            SampleKind::Delete => println!(
-                "machine offline ('{}')",
-                sample.key_expr().as_str()
-            ),
+            SampleKind::Put => println!("machine online ('{}')", sample.key_expr().as_str()),
+            SampleKind::Delete => println!("machine offline ('{}')", sample.key_expr().as_str()),
         }
     }
-
 }

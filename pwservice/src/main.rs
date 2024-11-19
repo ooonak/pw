@@ -1,4 +1,6 @@
-use common::{pw, BASE_KEY_EXPR, COMMAND_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR};
+use common::{
+    pw, BASE_KEY_EXPR, COMMAND_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR,
+};
 mod platform;
 use log::{error, info};
 use zenoh::bytes::ZBytes;
@@ -89,12 +91,11 @@ async fn main() {
             sample.key_expr().as_str(),
             payload
         );
-        
+
         if let Some(att) = sample.attachment() {
             let att = att.try_to_string().unwrap_or_else(|e| e.to_string().into());
             print!(" ({})", att);
         }
-        
     }
 
     token.undeclare().await.unwrap();

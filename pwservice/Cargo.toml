@@ -21,3 +21,6 @@ log = "0.4.22"
 [build-dependencies]
 anyhow = "1.0.93"
 vergen-gix = { version = "1.0.2", features = ["build", "cargo", "rustc"] }
+
+[package.metadata.cargo-machete]
+ignored = ["zenoh-ext"]
