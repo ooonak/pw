@@ -30,7 +30,10 @@ mod tests {
 
     #[test]
     fn serialize_machine() {
-        let machine = pw::messages::Machine { boottime: 12345678, ..Default::default() };
+        let machine = pw::messages::Machine {
+            boottime: 12345678,
+            ..Default::default()
+        };
 
         let buffer = super::serialize_machine(&machine);
 
@@ -45,7 +48,10 @@ mod tests {
 
         let machine = super::deserialize_machine(&buffer);
 
-        let expected = pw::messages::Machine { boottime: 12345678, ..Default::default() };
+        let expected = pw::messages::Machine {
+            boottime: 12345678,
+            ..Default::default()
+        };
 
         assert_eq!(machine.unwrap(), expected);
     }
