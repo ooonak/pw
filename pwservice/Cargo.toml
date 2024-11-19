@@ -20,4 +20,4 @@ log = "0.4.22"
 
 [build-dependencies]
 anyhow = "1.0.93"
-vergen-git2 = { version = "1.0.1", features = ["build", "cargo", "rustc"] }
+vergen-gix = { version = "1.0.2", features = ["build", "cargo", "rustc"] }

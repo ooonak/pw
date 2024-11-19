@@ -1,10 +1,10 @@
 use anyhow::Result;
-use vergen_git2::{BuildBuilder, Emitter, Git2Builder};
+use vergen_gix::{BuildBuilder, Emitter, GixBuilder};
 
 fn main() -> Result<()> {
     let build_timestamp = BuildBuilder::default().build_timestamp(true).build()?;
-    let commit_hash = Git2Builder::default().sha(true).build()?;
-    let git_dirty = Git2Builder::default().dirty(true).build()?;
+    let commit_hash = GixBuilder::default().sha(true).build()?;
+    let git_dirty = GixBuilder::default().dirty(true).build()?;
 
     Emitter::default()
         .add_instructions(&build_timestamp)?
