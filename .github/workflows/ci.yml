@@ -2,6 +2,12 @@ name: Continuous Integration
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 # ensure that the workflow is only triggered once per PR,  subsequent pushes to the PR will cancel
 # and restart the workflow. See https://docs.github.com/en/actions/using-jobs/using-concurrency
@@ -9,57 +15,76 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-env: 
+env:
   CARGO_TERM_COLOR: always
 
+# lint, clippy and coverage jobs are intentionally early in the workflow to catch simple formatting,
+# typos, and missing tests as early as possible. This allows us to fix these and resubmit the PR
+# without having to wait for the comprehensive matrix of tests to complete.
 jobs:
-  # Lint the formatting of the codebase.
-  lint-formatting:
-    name: Check Formatting
+  rustfmt:
+    name: Check formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with: { components: rustfmt }
-      - run: cargo xtask lint-formatting
+      - uses: Swatinem/rust-cache@v2
+      - name: Check formatting
+        run: cargo fmt --all -- --check
 
   # Check for typos in the codebase.
   # See <https://github.com/crate-ci/typos/>
-  lint-typos:
-    name: Check Typos
+  typos:
+    name: Check spelling with typos
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: crate-ci/typos@master
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Check spelling
+        uses: crate-ci/typos@master
 
   # Check for any disallowed dependencies in the codebase due to license / security issues.
   # See <https://github.com/EmbarkStudios/cargo-deny>
-  dependencies:
-    name: Check Dependencies
+  cargo-deny:
+    name: Check Dependencies with cargo-deny
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: EmbarkStudios/cargo-deny-action@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Check dependencies for license/security issues
+        uses: EmbarkStudios/cargo-deny-action@v2
 
   # Check for any unused dependencies in the codebase.
   # See <https://github.com/bnjbvr/cargo-machete/>
   cargo-machete:
-    name: Check Unused Dependencies
+    name: Check Unused Dependencies with cargo-machete
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
-      - uses: bnjbvr/cargo-machete@v0.7.0
+      - name: Check for unused dependencies
+        uses: bnjbvr/cargo-machete@v0.7.0
 
-  lint-clippy:
+  clippy:
     name: Check Clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Protocol Buffers compiler
+        uses: arduino/setup-protoc@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with: { components: clippy }
       - uses: Swatinem/rust-cache@v2
-      - run: cargo xtask lint-clippy
+      - name: Check linting with Clippy
+        run: cargo clippy --all-targets
 
   build_and_test:
     name: Rust project - latest
@@ -71,8 +96,13 @@ jobs:
           - beta
           - nightly
     steps:
-      - uses: arduino/setup-protoc@v3
-      - uses: actions/checkout@v4
-      - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
-      - run: cargo build --verbose
-      - run: cargo test --verbose
+      - name: Install Protocol Buffers compiler
+        uses: arduino/setup-protoc@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Update Rust
+        run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+      - name: Build
+        run: cargo build --verbose
+      - name: Test
+        run: cargo test --all-features --verbose
