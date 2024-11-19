@@ -13,8 +13,10 @@ repos:
     rev: eeee35a89e69d5772bdee97db1a6a898467b686e
     hooks:
     -   id: fmt
+        args: ['--all', '--', '--check']
     -   id: cargo-check
     -   id: clippy
+        args: ['--all-targets']
 
 -   repo: https://github.com/crate-ci/typos
     rev: typos-dict-v0.11.35
