@@ -29,10 +29,11 @@ async fn main() {
         GROUP_KEY_EXPR,
         MACHINE_KEY_EXPR,
     );
-    println!("Declaring Machine Subscriber on '{key_expr_machine}'...");
 
-    let replies = session.get(key_expr_machine).await.unwrap();
-    while let Ok(reply) = replies.recv_async().await {
+    println!("Declaring Machine getter on '{key_expr_machine}'...");
+
+    let machine_getter = session.get(key_expr_machine).await.unwrap();
+    while let Ok(reply) = machine_getter.recv_async().await {
         match reply.result() {
             Ok(sample) => {
                 let payload = &*(sample.payload().to_bytes());
@@ -63,7 +64,7 @@ async fn main() {
 
     println!("Declaring Liveliness Subscriber on '{key_expr_liveliness}'...");
     
-    let subscriber = session
+    let liveliness_subscriber = session
     .liveliness()
     .declare_subscriber(&key_expr_liveliness)
     .history(true)
@@ -71,7 +72,7 @@ async fn main() {
     .unwrap();
 
     println!("Press CTRL-C to quit...");
-    while let Ok(sample) = subscriber.recv_async().await {
+    while let Ok(sample) = liveliness_subscriber.recv_async().await {
         match sample.kind() {
             SampleKind::Put => println!(
                 "machine online ('{}')",

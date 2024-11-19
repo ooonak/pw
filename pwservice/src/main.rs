@@ -89,11 +89,12 @@ async fn main() {
             sample.key_expr().as_str(),
             payload
         );
+        
         if let Some(att) = sample.attachment() {
             let att = att.try_to_string().unwrap_or_else(|e| e.to_string().into());
             print!(" ({})", att);
         }
-        println!();
+        
     }
 
     token.undeclare().await.unwrap();
