@@ -29,9 +29,9 @@ pub fn read_lines(path: impl AsRef<Path>) -> io::Result<Vec<String>> {
     buf.lines().collect()
 }
 
-// Find first occurence of line in lines that begins with each element in elements.
+// Find first occurrence of line in lines that begins with each element in elements.
 // If elements is empty, all lines are returned.
-// If drop_key is true everything before and including first occurence of ": " will be dropped.
+// If drop_key is true everything before and including first occurrence of ": " will be dropped.
 pub fn parse_lines(
     lines: Vec<String>,
     mut elements: Vec<(&str, bool)>,
