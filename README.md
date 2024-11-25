@@ -33,5 +33,9 @@ $ cargo install cross --git https://github.com/cross-rs/cross
 Then build, cross uses crosstool-ng toolchains in Docker containers.
 
 ```
+# RPi3
 $ cross build -p pwservice --release --target armv7-unknown-linux-gnueabihf
+
+# BBB
+$ cross build -p pwservice --release --target arm-unknown-linux-gnueabihf
 ```
