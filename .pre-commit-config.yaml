@@ -20,30 +20,35 @@ repos:
     hooks:
     -   id: fmt
         name: fmt
+        require_serial: true
         entry: cargo fmt --all --check
         language: system
         types: [rust]
 
     -   id: typos
         name: typos
+        require_serial: true
         entry: typos
         language: system
         types: [rust]
 
     -   id: clippy
         name: clippy
+        require_serial: true
         entry: cargo clippy --all-targets
         language: system
         types: [rust]
 
     -   id: deny
         name: deny
+        require_serial: true
         entry: cargo deny check
         language: system
         types: [rust]
 
     -   id: machete
         name: machete
+        require_serial: true
         entry: cargo machete
         language: system
         types: [rust]

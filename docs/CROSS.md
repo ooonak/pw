@@ -14,7 +14,7 @@ $ rustup target add arm-unknown-linux-gnueabihf
 
 Configure config.toml
 ```
-$ cat .cargo/config.toml 
+$ cat .cargo/config.toml
 [target.armv7-linux-androideabi]
 ar = "/opt/android-sdk/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
 linker = "/opt/android-sdk/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi19-clang"

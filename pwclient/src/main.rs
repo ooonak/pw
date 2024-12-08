@@ -1,7 +1,26 @@
 use common::{
-    deserialize_machine, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR,
+    deserialize_machine, stringify_message, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR,
+    MACHINE_KEY_EXPR,
 };
+use log::{info, warn};
 use zenoh::{config::ZenohId, sample::SampleKind};
+
+fn version_info() -> String {
+    let mut build_type = "release";
+    if cfg!(debug_assertions) {
+        build_type = "debug";
+    }
+
+    format!(
+        "{} v{} {} (Git SHA: {}, dirty: {}, build time: {})",
+        option_env!("CARGO_PKG_NAME").unwrap_or_default(),
+        option_env!("CARGO_PKG_VERSION").unwrap_or_default(),
+        build_type,
+        option_env!("VERGEN_GIT_SHA").unwrap_or_default(),
+        option_env!("VERGEN_GIT_DIRTY").unwrap_or_default(),
+        option_env!("VERGEN_BUILD_TIMESTAMP").unwrap_or_default()
+    )
+}
 
 async fn zenoh_info(session: &zenoh::Session) {
     let info = session.info();
@@ -18,6 +37,9 @@ async fn zenoh_info(session: &zenoh::Session) {
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+    info!("Starting {}", version_info());
+
     zenoh::init_log_from_env_or("error");
 
     let config = zenoh::Config::default();
@@ -37,13 +59,18 @@ async fn main() {
         match reply.result() {
             Ok(sample) => {
                 let payload = &*(sample.payload().to_bytes());
-                let machine = deserialize_machine(payload);
-
-                println!(
-                    ">> Received ('{}': '{:?}')",
-                    sample.key_expr().as_str(),
-                    machine
-                );
+                match deserialize_machine(payload) {
+                    Ok(machine) => {
+                        info!(
+                            "Received ('{}': '{:?}')",
+                            sample.key_expr().as_str(),
+                            stringify_message(&machine)
+                        );
+                    }
+                    Err(err) => {
+                        warn!("Could not parse message (ERROR: '{}')", err);
+                    }
+                }
             }
             Err(err) => {
                 let payload = err
