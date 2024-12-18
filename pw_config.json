@@ -15,7 +15,7 @@
     "link": {
       "protocols": ["tls"],
       "tls": {
-        "root_ca_certificate": "$HOME/easy-rsa/minica/minica.pem"
+        "root_ca_certificate": "minica.pem"
       }
     }
   }
