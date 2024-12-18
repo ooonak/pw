@@ -29,12 +29,16 @@ pub fn deserialize_machine(buf: &[u8]) -> Result<pw::messages::Machine, prost::D
     pw::messages::Machine::decode(buf)
 }
 
-pub fn stringify_message(machine: &pw::messages::Machine) -> Vec<(&str, String)> {
-    let then = std::time::UNIX_EPOCH + Duration::from_secs(machine.boottime);
+pub fn stringify_duration(seconds: u64) -> String {
+    let then = std::time::UNIX_EPOCH + Duration::from_secs(seconds);
     let datetime = DateTime::<Utc>::from(then);
 
+    datetime.format("%Y-%m-%d %H:%M:%S").to_string()
+}
+
+pub fn stringify_message(machine: &pw::messages::Machine) -> Vec<(&str, String)> {
     vec![
-        ("booted", datetime.format("%Y-%m-%d %H:%M:%S").to_string()),
+        ("booted", stringify_duration(machine.boottime)),
         ("hostname", machine.hostname.clone()),
         ("kernel", machine.version.clone()),
         ("CPU", machine.cpu_model_name.clone()),

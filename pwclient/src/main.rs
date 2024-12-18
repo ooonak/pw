@@ -1,10 +1,9 @@
 use clap::Parser;
 use common::{
-    deserialize_machine, stringify_message, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR,
-    MACHINE_KEY_EXPR,
+    deserialize_machine, stringify_duration, stringify_message, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR
 };
-use log::{info, warn};
-use zenoh::{config::ZenohId, sample::SampleKind};
+use log::{debug, info, warn};
+use zenoh::sample::SampleKind;
 
 fn version_info() -> String {
     let mut build_type = "release";
@@ -21,19 +20,6 @@ fn version_info() -> String {
         option_env!("VERGEN_GIT_DIRTY").unwrap_or_default(),
         option_env!("VERGEN_BUILD_TIMESTAMP").unwrap_or_default()
     )
-}
-
-async fn zenoh_info(session: &zenoh::Session) {
-    let info = session.info();
-    println!("zid: {}", info.zid().await);
-    println!(
-        "routers zid: {:?}",
-        info.routers_zid().await.collect::<Vec<ZenohId>>()
-    );
-    println!(
-        "peers zid: {:?}",
-        info.peers_zid().await.collect::<Vec<ZenohId>>()
-    );
 }
 
 #[derive(Parser,Default,Debug)]
@@ -53,14 +39,12 @@ async fn main() {
     let config = zenoh::Config::from_file(args.config_file).unwrap();
     let session = zenoh::open(config).await.unwrap();
     
-    zenoh_info(&session).await;
-
     let key_expr_machine = format!(
         "{}/{}/{}/**",
         BASE_KEY_EXPR, GROUP_KEY_EXPR, MACHINE_KEY_EXPR,
     );
 
-    println!("Declaring Machine getter on '{key_expr_machine}'...");
+    debug!("Declaring Machine getter on '{key_expr_machine}'...");
 
     let machine_getter = session.get(key_expr_machine).await.unwrap();
     while let Ok(reply) = machine_getter.recv_async().await {
@@ -69,9 +53,12 @@ async fn main() {
                 let payload = &*(sample.payload().to_bytes());
                 match deserialize_machine(payload) {
                     Ok(machine) => {
+                        //debug!("{:?}", sample);
                         info!(
-                            "Received ('{}': '{:?}')",
+                            "Received [from {}, to {}, when {}] : '{:?}')",
+                            "<zid>",
                             sample.key_expr().as_str(),
+                            stringify_duration(sample.timestamp().unwrap().get_time().as_secs().into()),
                             stringify_message(&machine)
                         );
                     }
@@ -85,7 +72,7 @@ async fn main() {
                     .payload()
                     .try_to_string()
                     .unwrap_or_else(|e| e.to_string().into());
-                println!(">> Received (ERROR: '{}')", payload);
+                warn!(">> Received (ERROR: '{}')", payload);
             }
         }
     }
@@ -95,7 +82,7 @@ async fn main() {
         BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR
     );
 
-    println!("Declaring Liveliness Subscriber on '{key_expr_liveliness}'...");
+    debug!("Declaring Liveliness Subscriber on '{key_expr_liveliness}'...");
 
     let liveliness_subscriber = session
         .liveliness()
@@ -104,11 +91,11 @@ async fn main() {
         .await
         .unwrap();
 
-    println!("Press CTRL-C to quit...");
+    info!("Press CTRL-C to quit...");
     while let Ok(sample) = liveliness_subscriber.recv_async().await {
         match sample.kind() {
-            SampleKind::Put => println!("machine online ('{}')", sample.key_expr().as_str()),
-            SampleKind::Delete => println!("machine offline ('{}')", sample.key_expr().as_str()),
+            SampleKind::Put => info!("machine online ('{}')", sample.key_expr().as_str()),
+            SampleKind::Delete => info!("machine offline ('{}')", sample.key_expr().as_str()),
         }
     }
 }

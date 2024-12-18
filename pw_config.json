@@ -1,9 +1,17 @@
 {
   "mode": "client",
-  scouting: {
-    multicast: {
-      enabled: false,
-      listen: false,
+  "metadata": {
+    "name": "Hej",
+  },
+  "scouting": {
+    "multicast": {
+      "enabled": false,
+      "listen": false,
+    },
+    "gossip": {
+      "enabled": true,
+      "multihop": false,
+      "autoconnect": { "router": [], "peer": ["router", "peer"], "client": ["router", "peer"] },
     },
   },
   "connect": {
@@ -18,5 +26,10 @@
         "root_ca_certificate": "minica.pem"
       }
     }
-  }
+  },
+  "timestamping": { 
+    "enabled": {
+      "client": true,
+    },
+  },
 }
