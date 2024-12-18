@@ -1,0 +1,22 @@
+{
+  "mode": "client",
+  scouting: {
+    multicast: {
+      enabled: false,
+      listen: false,
+    },
+  },
+  "connect": {
+    "endpoints": [
+      "tls/192.168.42.105:7447"
+    ]
+  },
+  "transport": {
+    "link": {
+      "protocols": ["tls"],
+      "tls": {
+        "root_ca_certificate": "$HOME/easy-rsa/minica/minica.pem"
+      }
+    }
+  }
+}
