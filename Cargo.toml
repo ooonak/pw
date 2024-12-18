@@ -25,8 +25,8 @@ description = "pw: Process Watcher tool."
 [workspace.dependencies]
 common = { version = "0.0.1", path = "./common" }
 tokio = "1.41.0"
-zenoh = { version = "1.0.4", default-features = true }
-zenoh-ext = { version = "1.0.4", features = ["unstable"] }
+zenoh = { version = "1.1.0", default-features = true }
+zenoh-ext = { version = "1.1.0", features = ["unstable"] }
 anyhow = "1.0.93"
 vergen-gix = { version = "1.0.2", features = ["build", "cargo", "rustc"] }
 env_logger = "0.11.5"
