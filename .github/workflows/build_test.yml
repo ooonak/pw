@@ -9,7 +9,7 @@ on:
     branches:
       - development
 
-env: 
+env:
   CARGO_TERM_COLOR: always
 
 jobs:

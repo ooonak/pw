@@ -1,3 +1,4 @@
+use clap::Parser;
 use common::{
     pw, BASE_KEY_EXPR, COMMAND_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR,
 };
@@ -29,9 +30,17 @@ async fn send_machine_info(session: &zenoh::Session, key: &str, machine: &pw::me
     session.put(key, payload).await.unwrap();
 }
 
+#[derive(Parser, Default, Debug)]
+struct Arguments {
+    #[clap(default_value = "pw_config.json")]
+    config_file: String,
+}
+
 #[tokio::main]
 async fn main() {
     env_logger::init();
+    let args = Arguments::parse();
+
     info!("Starting {}", version_info());
 
     let machine = platform::machine::load();
@@ -41,8 +50,9 @@ async fn main() {
     }
 
     zenoh::init_log_from_env_or("error");
-    let config = zenoh::Config::default();
+    let config = zenoh::Config::from_file(args.config_file).unwrap();
     let session = zenoh::open(config).await.unwrap();
+
     let key_expr_machine = format!(
         "{}/{}/{}/{}",
         BASE_KEY_EXPR,

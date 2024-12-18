@@ -1,13 +1,13 @@
-name: Continuous Integration
+name: CI
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: ["**"]
   pull_request:
-    branches:
-      - main
+    branches: ["**"]
+  schedule:
+    - cron: "0 6 * * 1-5"
 
 # ensure that the workflow is only triggered once per PR,  subsequent pushes to the PR will cancel
 # and restart the workflow. See https://docs.github.com/en/actions/using-jobs/using-concurrency
@@ -22,71 +22,50 @@ env:
 # typos, and missing tests as early as possible. This allows us to fix these and resubmit the PR
 # without having to wait for the comprehensive matrix of tests to complete.
 jobs:
-  rustfmt:
-    name: Check formatting
+  check:
+    name: Lints, fmt, typos, check, clippy, deny, machete, semver.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with: { components: rustfmt }
-      - uses: Swatinem/rust-cache@v2
-      - name: Check formatting
-        run: cargo fmt --all -- --check
 
-  # Check for typos in the codebase.
-  # See <https://github.com/crate-ci/typos/>
-  typos:
-    name: Check spelling with typos
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - name: Check spelling
-        uses: crate-ci/typos@master
+      - name: Update Stable Rust toolchain
+        run: rustup update stable && rustup default stable
 
-  # Check for any disallowed dependencies in the codebase due to license / security issues.
-  # See <https://github.com/EmbarkStudios/cargo-deny>
-  cargo-deny:
-    name: Check Dependencies with cargo-deny
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - name: Check dependencies for license/security issues
-        uses: EmbarkStudios/cargo-deny-action@v2
+      - name: Setup rust-cache
+        uses: Swatinem/rust-cache@v2
 
-  # Check for any unused dependencies in the codebase.
-  # See <https://github.com/bnjbvr/cargo-machete/>
-  cargo-machete:
-    name: Check Unused Dependencies with cargo-machete
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-      - name: Check for unused dependencies
-        uses: bnjbvr/cargo-machete@v0.7.0
-
-  clippy:
-    name: Check Clippy
-    runs-on: ubuntu-latest
-    steps:
       - name: Install Protocol Buffers compiler
         uses: arduino/setup-protoc@v3
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with: { components: clippy }
-      - uses: Swatinem/rust-cache@v2
-      - name: Check linting with Clippy
-        run: cargo clippy --all-targets
 
-  build_and_test:
+      - name: Install latest cargo-deny
+        uses: taiki-e/install-action@cargo-deny
+
+      - name: Install latest cargo-machete
+        uses: taiki-e/install-action@cargo-machete
+
+      - name: Install latest cargo-semver-checks
+        uses: taiki-e/install-action@cargo-semver-checks
+
+      - name: Check spelling with typos
+        uses: crate-ci/typos@master
+
+      - name: Code format check
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets --all-features -- --deny warnings
+
+      - name: Check dependencies with deny
+        run: cargo deny check
+
+      - name: Check unused dependencies
+        run: cargo machete
+
+      #- name: Check SemVer compatibility
+      #  run: cargo semver-checks --verbose
+
+  test:
     name: Rust project - latest
     runs-on: ubuntu-latest
     strategy:
@@ -98,11 +77,15 @@ jobs:
     steps:
       - name: Install Protocol Buffers compiler
         uses: arduino/setup-protoc@v3
+
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Update Rust
         run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+
       - name: Build
         run: cargo build --verbose
+
       - name: Test
         run: cargo test --all-features --verbose

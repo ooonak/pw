@@ -9,19 +9,52 @@ repos:
     -   id: check-yaml
     -   id: check-added-large-files
 
--   repo: https://github.com/ooonak/pre-commit-rust
-    rev: eeee35a89e69d5772bdee97db1a6a898467b686e
+-   repo: https://github.com/AliYmn/conventional-commits-check
+    rev: v2.9.0
+    hooks:
+    -   id: conventional-commits-check
+        stages: [commit-msg]
+        args: ["--emoji-disabled"]
+
+-   repo: local
     hooks:
     -   id: fmt
-    -   id: cargo-check
-    -   id: clippy
+        name: fmt
+        require_serial: true
+        entry: cargo fmt --all --check
+        language: system
+        types: [rust]
 
--   repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.11.35
-    hooks:
     -   id: typos
+        name: typos
+        require_serial: true
+        entry: typos
+        language: system
+        types: [rust]
 
--   repo: https://github.com/EmbarkStudios/cargo-deny
-    rev: 0.16.2
-    hooks:
-    -   id: cargo-deny
+    -   id: clippy
+        name: clippy
+        require_serial: true
+        entry: cargo clippy --all-targets
+        language: system
+        types: [rust]
+
+    -   id: deny
+        name: deny
+        require_serial: true
+        entry: cargo deny check
+        language: system
+        types: [rust]
+
+    -   id: machete
+        name: machete
+        require_serial: true
+        entry: cargo machete
+        language: system
+        types: [rust]
+
+    #-   id: semver
+    #    name: semver
+    #    entry: cargo semver-checks
+    #    language: system
+    #    types: [rust]

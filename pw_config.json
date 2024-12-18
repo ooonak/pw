@@ -1,0 +1,35 @@
+{
+  "mode": "client",
+  "metadata": {
+    "name": "Hej",
+  },
+  "scouting": {
+    "multicast": {
+      "enabled": false,
+      "listen": false,
+    },
+    "gossip": {
+      "enabled": true,
+      "multihop": false,
+      "autoconnect": { "router": [], "peer": ["router", "peer"], "client": ["router", "peer"] },
+    },
+  },
+  "connect": {
+    "endpoints": [
+      "tls/192.168.42.105:7447"
+    ]
+  },
+  "transport": {
+    "link": {
+      "protocols": ["tls"],
+      "tls": {
+        "root_ca_certificate": "minica.pem"
+      }
+    }
+  },
+  "timestamping": { 
+    "enabled": {
+      "client": true,
+    },
+  },
+}
