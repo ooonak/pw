@@ -1,6 +1,7 @@
 use clap::Parser;
 use common::{
-    deserialize_machine, stringify_duration, stringify_message, BASE_KEY_EXPR, GROUP_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR
+    deserialize_machine, stringify_duration, stringify_message, BASE_KEY_EXPR, GROUP_KEY_EXPR,
+    LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR,
 };
 use log::{debug, info, warn};
 use zenoh::sample::SampleKind;
@@ -22,7 +23,7 @@ fn version_info() -> String {
     )
 }
 
-#[derive(Parser,Default,Debug)]
+#[derive(Parser, Default, Debug)]
 struct Arguments {
     #[clap(default_value = "pw_config.json")]
     config_file: String,
@@ -38,7 +39,7 @@ async fn main() {
     zenoh::init_log_from_env_or("error");
     let config = zenoh::Config::from_file(args.config_file).unwrap();
     let session = zenoh::open(config).await.unwrap();
-    
+
     let key_expr_machine = format!(
         "{}/{}/{}/**",
         BASE_KEY_EXPR, GROUP_KEY_EXPR, MACHINE_KEY_EXPR,
@@ -58,7 +59,9 @@ async fn main() {
                             "Received [from {}, to {}, when {}] : '{:?}')",
                             "<zid>",
                             sample.key_expr().as_str(),
-                            stringify_duration(sample.timestamp().unwrap().get_time().as_secs().into()),
+                            stringify_duration(
+                                sample.timestamp().unwrap().get_time().as_secs().into()
+                            ),
                             stringify_message(&machine)
                         );
                     }

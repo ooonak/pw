@@ -27,10 +27,10 @@ async fn send_machine_info(session: &zenoh::Session, key: &str, machine: &pw::me
     let payload = ZBytes::from(common::serialize_machine(machine));
 
     info!("Joining, telling about me on '{key}'");
-    session.put(key, payload).await.unwrap();    
+    session.put(key, payload).await.unwrap();
 }
 
-#[derive(Parser,Default,Debug)]
+#[derive(Parser, Default, Debug)]
 struct Arguments {
     #[clap(default_value = "pw_config.json")]
     config_file: String,
