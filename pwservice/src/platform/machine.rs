@@ -3,7 +3,13 @@ use common::pw;
 use super::{error::MachineError, utils::{
     get_default_route_info, get_ip_address_info, ip_from_string, mac_from_string, parse_lines,
     parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines,
-}, Machine};
+}};
+
+/// Trait to access machine information.
+pub trait Machine {
+    fn bootid(&self) -> &str;
+    fn mac(&self) -> u64;
+}
 
 /// Struct that encapsulates data.
 pub struct LinuxMachine {

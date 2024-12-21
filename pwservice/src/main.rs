@@ -3,6 +3,7 @@ mod platform;
 use clap::Parser;
 use communicator::ZenohCommunicator;
 use log::{error, info};
+use platform::machine::{LinuxMachine, Machine};
 
 fn version_info() -> String {
     let mut build_type = "release";
@@ -36,18 +37,15 @@ async fn main() {
 
     info!("Starting {}", version_info());
 
-    let machine = platform::machine::load();
-    if machine.network_interface.is_none() || machine.network_interface.as_ref().unwrap().mac == 0 {
-        error!("Failed to collect information about default network interface, giving up.");
-        std::process::abort();
-    }
-
+    let machine = LinuxMachine::new().expect("Failed to load system information");
+    
     let mut communicator = ZenohCommunicator::new(
         &args.config_file,
         &args.group,
-        machine.network_interface.as_ref().unwrap().mac,
+        machine.mac(),
     )
     .await;
+   
     communicator.init(&machine).await;
 
     communicator.run().await;
