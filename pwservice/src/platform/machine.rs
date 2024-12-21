@@ -14,7 +14,7 @@ pub struct LinuxMachine {
 impl LinuxMachine {
     pub fn new() -> Result<Self, MachineError> {
         let machine_info = load();
-        if machine_info.network_interface.is_none() || machine_info.network_interface.as_ref().unwrap().mac != 0 {
+        if machine_info.network_interface.is_none() || machine_info.network_interface.as_ref().unwrap().mac == 0 {
             return Err(MachineError { message: "Could not load valid MAC".to_owned(), line: line!(), column: column!() });
         }
 
@@ -239,6 +239,11 @@ mod tests {
         let expected: u32 = 990180;
 
         assert_eq!(parse_number(&lines[0]).ok(), Some(expected));
+    }
+
+    #[test]
+    fn new_ok() {
+        assert!(LinuxMachine::new().is_ok());
     }
 
     /*
