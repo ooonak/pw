@@ -1,5 +1,5 @@
 pub mod machine;
-
+mod error;
 mod utils;
 
 /// Trait to access machine information.
