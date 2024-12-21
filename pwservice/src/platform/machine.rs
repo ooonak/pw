@@ -1,11 +1,36 @@
 use common::pw;
 
-use super::utils::{
+use super::{utils::{
     get_default_route_info, get_ip_address_info, ip_from_string, mac_from_string, parse_lines,
     parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines,
-};
+}, Machine};
 
-pub fn load() -> common::pw::messages::Machine {
+/// Struct that encapsulates data.
+pub struct LinuxMachine {
+    machine_info: common::pw::messages::Machine,
+}
+
+/// Concrete implementation of machine trait, a Linux machine.
+impl LinuxMachine {
+    pub fn new() -> Self {
+        Self { machine_info: load() }
+    }
+}
+
+impl Machine for LinuxMachine {
+    fn bootid(&self) -> &str {
+        &self.machine_info.bootid
+    }
+
+    fn mac(&self) -> u64 {
+        /*
+        self.machine_info.network_interface.
+        */
+        0
+    }
+}
+
+fn load() -> common::pw::messages::Machine {
     let mut machine = common::pw::messages::Machine::default();
 
     if let Some(value) = parse_boottime() {
