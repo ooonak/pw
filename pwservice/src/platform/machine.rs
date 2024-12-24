@@ -1,11 +1,58 @@
-use common::pw;
-
+use super::error::MachineError;
 use super::utils::{
     get_default_route_info, get_ip_address_info, ip_from_string, mac_from_string, parse_lines,
     parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines,
 };
+use common::pw;
 
-pub fn load() -> common::pw::messages::Machine {
+/// Trait to access machine information.
+pub trait Machine {
+    //fn bootid(&self) -> &str;
+    fn mac(&self) -> u64;
+    fn serialize(&self) -> Vec<u8>;
+}
+
+/// Struct that encapsulates data.
+pub struct LinuxMachine {
+    machine_info: common::pw::messages::Machine,
+}
+
+/// Concrete implementation of machine trait, a Linux machine.
+impl LinuxMachine {
+    pub fn new() -> Result<Self, MachineError> {
+        let machine_info = load();
+        if machine_info.network_interface.is_none()
+            || machine_info.network_interface.as_ref().unwrap().mac == 0
+        {
+            return Err(MachineError {
+                message: "Could not load valid MAC".to_owned(),
+                line: line!(),
+                column: column!(),
+            });
+        }
+
+        Ok(Self { machine_info })
+    }
+}
+
+impl Machine for LinuxMachine {
+    /*
+    fn bootid(&self) -> &str {
+        &self.machine_info.bootid
+    }
+    */
+
+    fn mac(&self) -> u64 {
+        // Safe to unwrap, new has checked for existence of network_interface.
+        self.machine_info.network_interface.as_ref().unwrap().mac
+    }
+
+    fn serialize(&self) -> Vec<u8> {
+        common::serialize_machine(&self.machine_info)
+    }
+}
+
+fn load() -> common::pw::messages::Machine {
     let mut machine = common::pw::messages::Machine::default();
 
     if let Some(value) = parse_boottime() {
@@ -211,6 +258,11 @@ mod tests {
         let expected: u32 = 990180;
 
         assert_eq!(parse_number(&lines[0]).ok(), Some(expected));
+    }
+
+    #[test]
+    fn new_ok() {
+        assert!(LinuxMachine::new().is_ok());
     }
 
     /*

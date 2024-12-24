@@ -1,5 +1,6 @@
+use crate::platform::machine::Machine;
 use common::{
-    pw, BASE_KEY_EXPR, BOOTID_KEY_EXPR, COMMAND_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR,
+    BASE_KEY_EXPR, BOOTID_KEY_EXPR, COMMAND_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR,
 };
 use log::{info, warn};
 use zenoh::bytes::ZBytes;
@@ -29,15 +30,13 @@ impl ZenohCommunicator {
         }
     }
 
-    pub async fn init(&mut self, machine: &pw::messages::Machine) {
-        let payload = ZBytes::from(common::serialize_machine(machine));
+    pub async fn run<M: Machine>(&mut self, machine: &M) {
+        let payload = ZBytes::from(machine.serialize());
         self.session
             .put(&self.key_expr_machine, payload)
             .await
             .unwrap();
-    }
 
-    pub async fn run(&mut self) {
         let liveliness = self
             .session
             .liveliness()
