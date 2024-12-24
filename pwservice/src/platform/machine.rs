@@ -7,7 +7,7 @@ use common::pw;
 
 /// Trait to access machine information.
 pub trait Machine {
-    //fn bootid(&self) -> &str;
+    fn bootid(&self) -> &str;
     fn mac(&self) -> u64;
     fn serialize(&self) -> Vec<u8>;
 }
@@ -36,11 +36,9 @@ impl LinuxMachine {
 }
 
 impl Machine for LinuxMachine {
-    /*
     fn bootid(&self) -> &str {
         &self.machine_info.bootid
     }
-    */
 
     fn mac(&self) -> u64 {
         // Safe to unwrap, new has checked for existence of network_interface.

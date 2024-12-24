@@ -5,12 +5,19 @@ use prost::Message;
 use pw::messages::network_interface::Rtpproto::Dhcp;
 use std::time::Duration;
 
+/// The following topic structure is used.
+/// pw/<grp>/<machine_info>/<id> : Sent from service on start.
+/// pw/<grp>/<liveliness>/<id> : Sent from service on start.
+/// pw/<grp>/<id>/<boot_id>/<command> : Sent from client to service.
+/// pw/<grp>/<id>/<boot_id>/<metrics> : Sent from service to client.
+/// pw/<grp>/<id>/<boot_id>/<processes> : Sent from service to client.
 pub const BASE_KEY_EXPR: &str = "pw";
 pub const GROUP_KEY_EXPR: &str = "1";
-pub const MACHINE_KEY_EXPR: &str = "m";
-pub const LIVELINESS_KEY_EXPR: &str = "l";
-pub const COMMAND_KEY_EXPR: &str = "c";
-pub const BOOTID_KEY_EXPR: &str = "b";
+pub const MACHINE_KEY_EXPR: &str = "machine";
+pub const LIVELINESS_KEY_EXPR: &str = "liveliness";
+pub const COMMAND_KEY_EXPR: &str = "command";
+pub const METRICS_KEY_EXPR: &str = "metrics";
+pub const PROCESS_LISTING_KEY_EXPR: &str = "processes";
 
 pub mod pw {
     pub mod messages {

@@ -39,8 +39,7 @@ async fn main() {
 
     let machine = LinuxMachine::new().expect("Failed to load system information");
 
-    let mut communicator =
-        ZenohCommunicator::new(&args.config_file, &args.group, &machine).await;
+    let mut communicator = ZenohCommunicator::new(&args.config_file, &args.group, &machine).await;
 
     communicator.run().await;
 }
