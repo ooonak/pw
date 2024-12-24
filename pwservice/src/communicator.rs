@@ -1,11 +1,9 @@
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-
 use crate::platform::machine::Machine;
 use common::{
     BASE_KEY_EXPR, COMMAND_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR, METRICS_KEY_EXPR,
     PROCESS_LISTING_KEY_EXPR,
 };
-use log::{debug, info, warn};
+use log::{info, warn};
 use zenoh::bytes::ZBytes;
 
 pub struct ZenohCommunicator<'a, M> {
@@ -133,35 +131,15 @@ where
             );
             */
 
-            if sample.key_expr().len() > self.key_expr_command.len() {
-                let command: &str = &sample.key_expr()[self.key_expr_command.len() - 1..];
-                match command {
-                    "metrics_on" => {
-                        info!("Enabling metrics.");
-                        self.metrics_enabled = true;
-                    }
-                    "metrics_off" => {
-                        info!("Disabling metrics.");
-                        self.metrics_enabled = false;
-                    }
-                    "processes_on" => {
-                        info!("Enabling process listing.");
-                        self.process_listing_enabled = true;
-                    }
-                    "processes_off" => {
-                        info!("Disabling process listing.");
-                        self.process_listing_enabled = false;
-                    }
-                    _ => {
-                        info!("Unknown command '{}'.", command)
-                    }
-                }
-            }
+            (self.metrics_enabled, self.process_listing_enabled) = parse_command(&self.key_expr_command, self.metrics_enabled, self.process_listing_enabled, &sample);
 
+            if self.metrics_enabled {
             publisher_metrics
                 .put("TODO test a metric...")
                 .await
                 .unwrap();
+            }
+
             publisher_processes
                 .put("TODO test a process list...")
                 .await
@@ -175,4 +153,44 @@ where
 
         liveliness.undeclare().await.unwrap();
     }
+}
+
+fn parse_command(key_expr_command: &str, metrics_enabled: bool, process_listing_enabled: bool, sample: &zenoh::sample::Sample) -> (bool, bool) {
+    let mut metrics = metrics_enabled;
+    let mut processes = process_listing_enabled;
+    
+    if sample.key_expr().len() > key_expr_command.len() {
+        let command: &str = &sample.key_expr()[key_expr_command.len() - 1..];
+        match command {
+            "metrics_on" => {
+                if !metrics_enabled {
+                    info!("Enabling metrics.");
+                    metrics = true;
+                }
+            }
+            "metrics_off" => {
+                if metrics_enabled {
+                    info!("Disabling metrics.");
+                    metrics = false;
+                }
+            }
+            "processes_on" => {
+                if !process_listing_enabled {
+                    info!("Enabling process listing.");
+                    processes = true;
+                }
+            }
+            "processes_off" => {
+                if !process_listing_enabled {
+                    info!("Disabling process listing.");
+                    processes = false;
+                }
+            }
+            _ => {
+                info!("Unknown command '{}'.", command)
+            }
+        }
+    }
+
+    (metrics, processes)
 }
