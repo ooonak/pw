@@ -1,14 +1,15 @@
 use common::pw;
-
-use super::{error::MachineError, utils::{
+use super::error::MachineError;
+use super::utils::{
     get_default_route_info, get_ip_address_info, ip_from_string, mac_from_string, parse_lines,
     parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines,
-}};
+};
 
 /// Trait to access machine information.
 pub trait Machine {
     fn bootid(&self) -> &str;
     fn mac(&self) -> u64;
+    fn serialize(&self) -> Vec<u8>;
 }
 
 /// Struct that encapsulates data.
@@ -36,6 +37,10 @@ impl Machine for LinuxMachine {
     fn mac(&self) -> u64 {
         // Safe to unwrap, new has checked for existence of network_interface.
         self.machine_info.network_interface.as_ref().unwrap().mac
+    }
+
+    fn serialize(&self) -> Vec<u8> {
+        common::serialize_machine(&self.machine_info)
     }
 }
 

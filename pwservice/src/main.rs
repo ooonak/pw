@@ -2,7 +2,7 @@ mod communicator;
 mod platform;
 use clap::Parser;
 use communicator::ZenohCommunicator;
-use log::{error, info};
+use log::info;
 use platform::machine::{LinuxMachine, Machine};
 
 fn version_info() -> String {
@@ -46,7 +46,5 @@ async fn main() {
     )
     .await;
    
-    communicator.init(&machine).await;
-
-    communicator.run().await;
+    communicator.run(&machine).await;
 }

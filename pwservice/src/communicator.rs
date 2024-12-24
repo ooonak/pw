@@ -30,18 +30,13 @@ impl ZenohCommunicator {
         }
     }
 
-    pub async fn init<M: Machine>(&mut self, machine: &M) {
-        /*
-        let payload = ZBytes::from(common::serialize_machine(machine));
+    pub async fn run<M: Machine>(&mut self, machine: &M) {
+        let payload = ZBytes::from(machine.serialize());
         self.session
             .put(&self.key_expr_machine, payload)
             .await
             .unwrap();
-        */
-        todo!()
-    }
 
-    pub async fn run(&mut self) {
         let liveliness = self
             .session
             .liveliness()
