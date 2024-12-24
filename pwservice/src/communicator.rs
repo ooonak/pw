@@ -117,10 +117,12 @@ where
 
         while let Ok(sample) = subscriber_commands.recv_async().await {
             // Refer to z_bytes.rs to see how to deserialize different types of message
+            /*
             let payload = sample
                 .payload()
                 .try_to_string()
                 .unwrap_or_else(|e| e.to_string().into());
+            */
 
             /*
             info!(
@@ -131,13 +133,18 @@ where
             );
             */
 
-            (self.metrics_enabled, self.process_listing_enabled) = parse_command(&self.key_expr_command, self.metrics_enabled, self.process_listing_enabled, &sample);
+            (self.metrics_enabled, self.process_listing_enabled) = parse_command(
+                &self.key_expr_command,
+                self.metrics_enabled,
+                self.process_listing_enabled,
+                &sample,
+            );
 
             if self.metrics_enabled {
-            publisher_metrics
-                .put("TODO test a metric...")
-                .await
-                .unwrap();
+                publisher_metrics
+                    .put("TODO test a metric...")
+                    .await
+                    .unwrap();
             }
 
             publisher_processes
@@ -155,10 +162,15 @@ where
     }
 }
 
-fn parse_command(key_expr_command: &str, metrics_enabled: bool, process_listing_enabled: bool, sample: &zenoh::sample::Sample) -> (bool, bool) {
+fn parse_command(
+    key_expr_command: &str,
+    metrics_enabled: bool,
+    process_listing_enabled: bool,
+    sample: &zenoh::sample::Sample,
+) -> (bool, bool) {
     let mut metrics = metrics_enabled;
     let mut processes = process_listing_enabled;
-    
+
     if sample.key_expr().len() > key_expr_command.len() {
         let command: &str = &sample.key_expr()[key_expr_command.len() - 1..];
         match command {
