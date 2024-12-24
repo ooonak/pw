@@ -5,33 +5,35 @@ use common::{
 use log::{info, warn};
 use zenoh::bytes::ZBytes;
 
-pub struct ZenohCommunicator {
+pub struct ZenohCommunicator<'a, M> {
     session: zenoh::Session,
+    machine: &'a M,
     key_expr_machine: String,
     key_expr_liveliness: String,
     key_expr_command: String,
     key_expr_metrics: String,
 }
 
-impl ZenohCommunicator {
-    pub async fn new(config_file: &str, grp: &str, id: u64) -> Self {
+impl<'a, M> ZenohCommunicator<'a, M> where M: Machine {
+    pub async fn new(config_file: &str, grp: &str, machine: &'a M) -> Self {
         zenoh::init_log_from_env_or("error");
         let config = zenoh::Config::from_file(config_file).unwrap();
 
         Self {
             session: zenoh::open(config).await.unwrap(),
-            key_expr_machine: format!("{}/{}/{}/{}", BASE_KEY_EXPR, grp, MACHINE_KEY_EXPR, id),
+            machine,
+            key_expr_machine: format!("{}/{}/{}/{}", BASE_KEY_EXPR, grp, MACHINE_KEY_EXPR, machine.mac()),
             key_expr_liveliness: format!(
                 "{}/{}/{}/{}",
-                BASE_KEY_EXPR, grp, LIVELINESS_KEY_EXPR, id
+                BASE_KEY_EXPR, grp, LIVELINESS_KEY_EXPR, machine.mac()
             ),
-            key_expr_command: format!("{}/{}/{}/{}/*", BASE_KEY_EXPR, grp, COMMAND_KEY_EXPR, id),
-            key_expr_metrics: format!("{}/{}/{}/{}", BASE_KEY_EXPR, grp, BOOTID_KEY_EXPR, id),
+            key_expr_command: format!("{}/{}/{}/{}/*", BASE_KEY_EXPR, grp, COMMAND_KEY_EXPR, machine.mac()),
+            key_expr_metrics: format!("{}/{}/{}/{}", BASE_KEY_EXPR, grp, BOOTID_KEY_EXPR, machine.mac()),
         }
     }
 
-    pub async fn run<M: Machine>(&mut self, machine: &M) {
-        let payload = ZBytes::from(machine.serialize());
+    pub async fn run(&mut self) {
+        let payload = ZBytes::from(self.machine.serialize());
         self.session
             .put(&self.key_expr_machine, payload)
             .await
