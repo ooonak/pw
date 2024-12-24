@@ -1,13 +1,13 @@
-use common::pw;
 use super::error::MachineError;
 use super::utils::{
     get_default_route_info, get_ip_address_info, ip_from_string, mac_from_string, parse_lines,
     parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines,
 };
+use common::pw;
 
 /// Trait to access machine information.
 pub trait Machine {
-    fn bootid(&self) -> &str;
+    //fn bootid(&self) -> &str;
     fn mac(&self) -> u64;
     fn serialize(&self) -> Vec<u8>;
 }
@@ -21,8 +21,14 @@ pub struct LinuxMachine {
 impl LinuxMachine {
     pub fn new() -> Result<Self, MachineError> {
         let machine_info = load();
-        if machine_info.network_interface.is_none() || machine_info.network_interface.as_ref().unwrap().mac == 0 {
-            return Err(MachineError { message: "Could not load valid MAC".to_owned(), line: line!(), column: column!() });
+        if machine_info.network_interface.is_none()
+            || machine_info.network_interface.as_ref().unwrap().mac == 0
+        {
+            return Err(MachineError {
+                message: "Could not load valid MAC".to_owned(),
+                line: line!(),
+                column: column!(),
+            });
         }
 
         Ok(Self { machine_info })
@@ -30,9 +36,11 @@ impl LinuxMachine {
 }
 
 impl Machine for LinuxMachine {
+    /*
     fn bootid(&self) -> &str {
         &self.machine_info.bootid
     }
+    */
 
     fn mac(&self) -> u64 {
         // Safe to unwrap, new has checked for existence of network_interface.

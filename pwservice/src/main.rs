@@ -38,13 +38,9 @@ async fn main() {
     info!("Starting {}", version_info());
 
     let machine = LinuxMachine::new().expect("Failed to load system information");
-    
-    let mut communicator = ZenohCommunicator::new(
-        &args.config_file,
-        &args.group,
-        machine.mac(),
-    )
-    .await;
-   
+
+    let mut communicator =
+        ZenohCommunicator::new(&args.config_file, &args.group, machine.mac()).await;
+
     communicator.run(&machine).await;
 }
