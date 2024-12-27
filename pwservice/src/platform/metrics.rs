@@ -19,7 +19,7 @@ pub struct Metrics {
 fn load() -> common::pw::messages::Metrics {
     let mut metrics = common::pw::messages::Metrics::default();
 
-    todo!();
+    //todo!();
 
     metrics
 }

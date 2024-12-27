@@ -148,8 +148,8 @@ where
                     if self.process_listing_enabled_counter > 0 {
                         self.process_listing_enabled_counter -= 1;
 
-                        if let Ok(process_list) = Processes::new() {
-                            let payload = ZBytes::from(process_list.serialize());
+                        if let Ok(processes) = Processes::new() {
+                            let payload = ZBytes::from(processes.serialize());
 
                             publisher_processes
                                 .put(payload)
