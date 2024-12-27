@@ -1,4 +1,4 @@
-use crate::platform::machine::Machine;
+use crate::platform::{machine::Machine, metrics::Metrics, processes::Processes};
 use common::{
     BASE_KEY_EXPR, COMMAND_KEY_EXPR, LIVELINESS_KEY_EXPR, MACHINE_KEY_EXPR, METRICS_KEY_EXPR,
     PROCESS_LISTING_KEY_EXPR,
@@ -134,18 +134,28 @@ where
                 _ = tokio::time::sleep(std::time::Duration::from_secs(1)) => {
                     if self.metrics_enabled_counter > 0 {
                         self.metrics_enabled_counter -= 1;
-                        publisher_metrics
-                            .put("TODO test a metric...")
-                            .await
-                            .unwrap();
+
+                        if let Ok(metrics) = Metrics::new() {
+                            let payload = ZBytes::from(metrics.serialize());
+
+                            publisher_metrics
+                                .put(payload)
+                                .await
+                                .unwrap();
+                        }
                     }
 
                     if self.process_listing_enabled_counter > 0 {
                         self.process_listing_enabled_counter -= 1;
-                        publisher_processes
-                        .put("TODO test a process list...")
-                        .await
-                        .unwrap();
+
+                        if let Ok(process_list) = Processes::new() {
+                            let payload = ZBytes::from(process_list.serialize());
+
+                            publisher_processes
+                                .put(payload)
+                                .await
+                                .unwrap();
+                        }
                     }
                 }
             }

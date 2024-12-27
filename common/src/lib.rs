@@ -37,6 +37,30 @@ pub fn deserialize_machine(buf: &[u8]) -> Result<pw::messages::Machine, prost::D
     pw::messages::Machine::decode(buf)
 }
 
+pub fn serialize_metrics(metrics: &pw::messages::Metrics) -> Vec<u8> {
+    let mut buf = Vec::with_capacity(metrics.encoded_len());
+
+    // Unwrap is safe, we have reserved capacity in the vector.
+    metrics.encode(&mut buf).unwrap();
+    buf
+}
+
+pub fn deserialize_metrics(buf: &[u8]) -> Result<pw::messages::Metrics, prost::DecodeError> {
+    pw::messages::Metrics::decode(buf)
+}
+
+pub fn serialize_process(process: &pw::messages::Processes) -> Vec<u8> {
+    let mut buf = Vec::with_capacity(process.encoded_len());
+
+    // Unwrap is safe, we have reserved capacity in the vector.
+    process.encode(&mut buf).unwrap();
+    buf
+}
+
+pub fn deserialize_process(buf: &[u8]) -> Result<pw::messages::Processes, prost::DecodeError> {
+    pw::messages::Processes::decode(buf)
+}
+
 pub fn stringify_duration(seconds: u64) -> String {
     let then = std::time::UNIX_EPOCH + Duration::from_secs(seconds);
     let datetime = DateTime::<Utc>::from(then);

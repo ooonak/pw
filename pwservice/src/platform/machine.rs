@@ -1,4 +1,4 @@
-use super::error::MachineError;
+use super::error::PlatformError;
 use super::utils::{
     get_default_route_info, get_ip_address_info, ip_from_string, mac_from_string, parse_lines,
     parse_lines_no_separator, parse_number, parse_number_no_separator, read_lines,
@@ -19,12 +19,12 @@ pub struct LinuxMachine {
 
 /// Concrete implementation of machine trait, a Linux machine.
 impl LinuxMachine {
-    pub fn new() -> Result<Self, MachineError> {
+    pub fn new() -> Result<Self, PlatformError> {
         let machine_info = load();
         if machine_info.network_interface.is_none()
             || machine_info.network_interface.as_ref().unwrap().mac == 0
         {
-            return Err(MachineError {
+            return Err(PlatformError {
                 message: "Could not load valid MAC".to_owned(),
                 line: line!(),
                 column: column!(),

@@ -19,6 +19,27 @@ message NetworkInterface {
     uint32 gateway = 7;
 }
 
+message CpuInfo {
+    uint64 user = 1;
+    uint64 nice = 2;
+    uint64 system = 3;
+    uint64 idle = 4; 
+}
+
+message MemInfo {
+    uint64 mem_total = 1;
+    uint64 mem_free = 2;
+    uint64 mem_available = 3;
+    uint64 swap_total = 4;
+    uint64 swap_free = 5;
+}
+
+message Metrics {
+    uint32 processes = 1;
+    MemInfo mem_info = 2;
+    repeated CpuInfo cpu_info = 3;
+}
+
 message Machine {
     uint64 boottime = 1;
     string bootid = 2;
@@ -29,35 +50,21 @@ message Machine {
     NetworkInterface network_interface = 7;
 }
 
-message Process {
+message ProcessInfo {
     string name = 1;
     int32 tgid = 2;
     int32 pid = 3;
     int32 ppid = 4;
-    int32 uid = 5;
-    int32 gid = 6;
-    string cmdline = 7;
-    string cwd = 8;
 }
 
-message Thread {
-
+message ProcessExtended {
+    int32 uid = 1;
+    int32 gid = 2;
+    string cmdline = 3;
+    string cwd = 4;
 }
 
-// Envelope
-message Message {
-    // Possible message types
-    enum Type {
-        Information = 0;
-    }
-
-    // Type of this message
-    Type type = 1;
-
-    // We use the machine mac address as identifier, this makes mapping of information to a specific machine easy.
-    uint64 mac = 2;
-
-    Machine machine = 3;
-    Process process = 4;
-    repeated Thread threads = 5;
+message Processes {
+    repeated ProcessInfo processes_info = 1;
+    repeated ProcessExtended processes_extended = 2;
 }

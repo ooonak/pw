@@ -3,7 +3,7 @@ mod platform;
 use clap::Parser;
 use communicator::ZenohCommunicator;
 use log::info;
-use platform::machine::LinuxMachine;
+use platform::{machine::LinuxMachine, metrics::{self, Metrics}};
 
 fn version_info() -> String {
     let mut build_type = "release";
@@ -38,7 +38,7 @@ async fn main() {
     info!("Starting {}", version_info());
 
     let machine = LinuxMachine::new().expect("Failed to load system information");
-
+    
     let mut communicator = ZenohCommunicator::new(&args.config_file, &args.group, &machine).await;
 
     communicator.run().await;
