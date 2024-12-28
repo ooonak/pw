@@ -137,7 +137,7 @@ where
 
                         if let Ok(metrics) = Metrics::new() {
                             let payload = ZBytes::from(metrics.serialize());
-                            
+
                             publisher_metrics
                                 .put(payload)
                                 .await

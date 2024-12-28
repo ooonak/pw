@@ -1,7 +1,7 @@
 use super::{
     error::PlatformError,
     utils::{
-        parse_cpu_stat_lines, parse_lines_as_numbers, parse_lines_no_separator, parse_number,
+        parse_cpu_stat_lines, parse_lines_as_numbers, parse_lines_no_separator,
         parse_number_no_separator, read_lines,
     },
 };
@@ -24,6 +24,12 @@ pub struct Metrics {
 
 fn load() -> common::pw::messages::Metrics {
     let mut metrics = common::pw::messages::Metrics::default();
+
+    if let Some(loadavg) = parse_loadavg() {
+        if loadavg.len() == 3 {
+            metrics.loadavg = loadavg;
+        }
+    }
 
     if let Some(no_of_processes) = parse_no_of_processes() {
         if no_of_processes.len() == 3 {
@@ -67,6 +73,26 @@ fn load() -> common::pw::messages::Metrics {
     }
 
     metrics
+}
+
+/// Parse values about system load.
+fn parse_loadavg() -> Option<Vec<f32>> {
+    let mut values: Vec<f32> = vec![];
+
+    if let Ok(all_lines) = read_lines("/proc/loadavg") {
+        let words: Vec<&str> = all_lines[0].split_whitespace().collect();
+        for word in &words[0..2] {
+            if let Ok(value) = word.parse() {
+                values.push(value);
+            }
+        }
+
+        if values.len() == 3 {
+            return Some(values);
+        }
+    }
+
+    None
 }
 
 /// Read no of procceses from stat.
@@ -121,7 +147,7 @@ fn parse_meminfo() -> Option<Vec<u32>> {
 fn parse_cpuload() -> Option<Vec<Vec<u64>>> {
     if let Ok(lines) = read_lines("/proc/stat") {
         let values = parse_cpu_stat_lines(lines);
-        if values.len() > 0 {
+        if !values.is_empty() {
             return Some(values);
         }
     }

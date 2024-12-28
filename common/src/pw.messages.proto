@@ -39,8 +39,9 @@ message Metrics {
     uint32 processes = 1;
     uint32 runnable_processes = 2;
     uint32 processes_blocked = 3;
-    MemInfo mem_info = 4;
-    repeated CpuLoad cpu_load = 5;
+    repeated float loadavg = 4;
+    MemInfo mem_info = 5;
+    repeated CpuLoad cpu_load = 6;
 }
 
 message Machine {

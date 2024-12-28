@@ -17,9 +17,5 @@ pub struct Processes {
 }
 
 fn load() -> common::pw::messages::Processes {
-    let mut processes = common::pw::messages::Processes::default();
-
-    //todo!();
-
-    processes
+    common::pw::messages::Processes::default()
 }
