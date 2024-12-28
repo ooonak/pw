@@ -19,11 +19,12 @@ message NetworkInterface {
     uint32 gateway = 7;
 }
 
-message CpuInfo {
+message CpuLoad {
     uint64 user = 1;
     uint64 nice = 2;
     uint64 system = 3;
-    uint64 idle = 4; 
+    uint64 idle = 4;
+    uint64 iowait = 5;
 }
 
 message MemInfo {
@@ -36,8 +37,10 @@ message MemInfo {
 
 message Metrics {
     uint32 processes = 1;
-    MemInfo mem_info = 2;
-    repeated CpuInfo cpu_info = 3;
+    uint32 runnable_processes = 2;
+    uint32 processes_blocked = 3;
+    MemInfo mem_info = 4;
+    repeated CpuLoad cpu_load = 5;
 }
 
 message Machine {
@@ -55,13 +58,18 @@ message ProcessInfo {
     int32 tgid = 2;
     int32 pid = 3;
     int32 ppid = 4;
+    int32 uid = 5;
+    int32 gid = 6;
 }
 
 message ProcessExtended {
-    int32 uid = 1;
-    int32 gid = 2;
-    string cmdline = 3;
-    string cwd = 4;
+    string cmdline = 1;
+    string cwd = 2;
+    string exe = 3;
+    uint32 size = 4;
+    uint64 modify_ts = 5;
+    uint64 change_ts = 6;
+    bytes sha256 = 7;
 }
 
 message Processes {

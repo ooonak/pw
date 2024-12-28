@@ -55,21 +55,21 @@ pub fn parse_lines(
     info
 }
 
-pub fn parse_lines_as_numbers(
+pub fn parse_lines_as_numbers<T: std::str::FromStr>(
     lines: Vec<String>,
     elements: Vec<(&str, bool)>,
     drop_key: bool,
-) -> Vec<u32> {
+) -> Vec<T> {
     let string_values = parse_lines(lines, elements, drop_key);
 
-    let mut int_values: Vec<u32> = vec![];
+    let mut values: Vec<T> = vec![];
     for value in &string_values {
         if let Ok(number) = parse_number(value) {
-            int_values.push(number);
+            values.push(number);
         }
     }
 
-    int_values
+    values
 }
 
 pub fn parse_lines_no_separator(lines: Vec<String>, elements: Vec<(&str, bool)>) -> Vec<String> {
@@ -201,6 +201,37 @@ pub fn get_ip_address_info(dev: &str) -> Option<Vec<String>> {
     None
 }
 
+pub fn parse_cpu_stat_lines(lines: Vec<String>) -> Vec<Vec<u64>> {
+    let mut cpus_values: Vec<Vec<u64>> = vec![];
+
+    for line in &lines {
+        if line.starts_with("cpu") {
+            if let Some(cpu_values) = parse_cpu_stat_line(line) {
+                cpus_values.push(cpu_values);
+            }
+        }
+    }
+
+    cpus_values
+}
+
+fn parse_cpu_stat_line(line: &str) -> Option<Vec<u64>> {
+    let words: Vec<&str> = line.split_whitespace().collect();
+
+    if words.len() > 6 {
+        let mut cpu_values: Vec<u64> = vec![];
+        for word in &words[1..6] {
+            if let Ok(number) = parse_number(word) {
+                cpu_values.push(number);
+            }
+        }
+
+        return Some(cpu_values);
+    }
+
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -265,7 +296,7 @@ mod tests {
         let lines = vec!["a:  1 kb".into(), "b:  2 kb".into(), "c:  3 kb".into()];
         let elements = vec![("a", false), ("c", false)];
 
-        let result = parse_lines_as_numbers(lines, elements, true);
+        let result: Vec<u32> = parse_lines_as_numbers(lines, elements, true);
         let expected = vec![1, 3];
         assert_eq!(result, expected);
     }
@@ -281,7 +312,7 @@ mod tests {
         ];
         let elements = vec![("a", false), ("b", false), ("c", false)];
 
-        let result = parse_lines_as_numbers(lines, elements, true);
+        let result: Vec<i32> = parse_lines_as_numbers(lines, elements, true);
         let expected = vec![3];
         assert_eq!(result, expected);
     }
