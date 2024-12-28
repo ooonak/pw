@@ -95,7 +95,7 @@ fn parse_loadavg() -> Option<Vec<f32>> {
     None
 }
 
-/// Read no of procceses from stat.
+/// Read no of processes from stat.
 fn parse_no_of_processes() -> Option<Vec<u32>> {
     if let Ok(all_lines) = read_lines("/proc/stat") {
         let elements = vec![
