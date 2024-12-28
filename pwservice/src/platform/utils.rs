@@ -55,6 +55,23 @@ pub fn parse_lines(
     info
 }
 
+pub fn parse_lines_as_numbers(
+    lines: Vec<String>,
+    elements: Vec<(&str, bool)>,
+    drop_key: bool,
+) -> Vec<u32> {
+    let string_values = parse_lines(lines, elements, drop_key);
+
+    let mut int_values: Vec<u32> = vec![];
+    for value in &string_values {
+        if let Ok(number) = parse_number(value) {
+            int_values.push(number);
+        }
+    }
+
+    int_values
+}
+
 pub fn parse_lines_no_separator(lines: Vec<String>, elements: Vec<(&str, bool)>) -> Vec<String> {
     parse_lines(lines, elements, false)
 }
@@ -241,5 +258,31 @@ mod tests {
             "b4:6b:fc:ed:d5:78".to_string(),
         ];
         assert_eq!(parse_ip_address_info(input2), expected2);
+    }
+
+    #[test]
+    fn parse_lines_as_numbers_ok() {
+        let lines = vec!["a:  1 kb".into(), "b:  2 kb".into(), "c:  3 kb".into()];
+        let elements = vec![("a", false), ("c", false)];
+
+        let result = parse_lines_as_numbers(lines, elements, true);
+        let expected = vec![1, 3];
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn parse_lines_as_numbers_not_ok() {
+        let lines = vec![
+            "".into(),
+            "aa".into(),
+            " a  x2: ".into(),
+            "b:  - kb".into(),
+            "c:  3 kb".into(),
+        ];
+        let elements = vec![("a", false), ("b", false), ("c", false)];
+
+        let result = parse_lines_as_numbers(lines, elements, true);
+        let expected = vec![3];
+        assert_eq!(result, expected);
     }
 }

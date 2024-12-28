@@ -3,10 +3,7 @@ mod platform;
 use clap::Parser;
 use communicator::ZenohCommunicator;
 use log::info;
-use platform::{
-    machine::LinuxMachine,
-    metrics::{self, Metrics},
-};
+use platform::machine::LinuxMachine;
 
 fn version_info() -> String {
     let mut build_type = "release";

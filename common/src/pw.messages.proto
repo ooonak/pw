@@ -27,11 +27,11 @@ message CpuInfo {
 }
 
 message MemInfo {
-    uint64 mem_total = 1;
-    uint64 mem_free = 2;
-    uint64 mem_available = 3;
-    uint64 swap_total = 4;
-    uint64 swap_free = 5;
+    uint32 mem_total = 1;
+    uint32 mem_free = 2;
+    uint32 mem_available = 3;
+    uint32 swap_total = 4;
+    uint32 swap_free = 5;
 }
 
 message Metrics {

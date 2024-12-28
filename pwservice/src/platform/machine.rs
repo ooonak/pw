@@ -221,7 +221,7 @@ mod tests {
     #[test]
     fn cpuinfo_with_key() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push("resources/test/proc/cpuinfo");
+        path.push("resources/test/proc/cpuinfo1");
 
         let lines = read_lines(path).expect("Could not read");
         let elements = vec![("model name", false)];
@@ -234,7 +234,7 @@ mod tests {
     #[test]
     fn cpuinfo_without_key() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push("resources/test/proc/cpuinfo");
+        path.push("resources/test/proc/cpuinfo1");
 
         let lines = read_lines(path).expect("Could not read");
         let elements = vec![("model name", false)];
@@ -247,7 +247,7 @@ mod tests {
     #[test]
     fn mem_size() {
         let mut path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path.push("resources/test/proc/meminfo");
+        path.push("resources/test/proc/meminfo1");
 
         let all_lines = read_lines(path).expect("Could not read");
         let elements = vec![("MemTotal:", false)];
